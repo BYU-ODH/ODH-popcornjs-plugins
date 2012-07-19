@@ -53,11 +53,10 @@
                
                // find our UL and append our LI
                if(options.word_list) {
-                   options._word_list = Popcorn.dom.find(options.target);
-                   options.word_list = Popcorn.dom.find(options.word_list);
+                   options._word_list = Popcorn.dom.find(options.word_list);
                    options._li = document.createElement( "li" );
                    options._li.appendChild(a);
-                   options.word_list.appendChild(options._li);
+                   options._word_list.appendChild(options._li);
                }
            },
            start: function( event, options ){
