@@ -36,7 +36,7 @@
                var a = document.createElement("a");
                a.setAttribute('href','#');
                a.addEventListener('click',function(ev){
-                  ev.preventDefault;
+                  ev.preventDefault();
                   // tells us that we will want to pause when this is complete
                   options._pause = true;
                   pop.currentTime(options.start);
