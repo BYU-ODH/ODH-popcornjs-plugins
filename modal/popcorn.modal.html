@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Popcorn Modal Plug-in Demo</title>
+
+  <script src="../../popcorn.js"></script>
+  <script src="popcorn.modal.js"></script>
+  <script>
+    document.addEventListener( "DOMContentLoaded", function () {
+
+      window.p_skip = Popcorn( "#video" )
+      .play()
+      .modal({
+        start: 0,
+        end: 4,
+        text: 'After this she stood upon both feet and cried in a loud voice: "Ziz-zy, zuz-zy, zik!"',
+        showOnce: true
+      });
+    });
+  </script>
+</head>
+<body>
+    <p>
+        This video displays a modal window when it starts playing.
+    </p>
+  <div>
+    <video id="video"
+      controls 
+      width="350px"
+      poster="../../test/poster.png">
+
+      <source id="mp4"
+        src="../../test/trailer.mp4"
+        type='video/mp4; codecs="avc1, mp4a"'>
+
+      <source id="ogv"
+        src="../../test/trailer.ogv"
+        type='video/ogg; codecs="theora, vorbis"'>
+
+      <p>Your user agent does not support the HTML5 Video element.</p>
+
+    </video>
+  </div>
+</body>
+</html>
