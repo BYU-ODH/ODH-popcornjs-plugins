@@ -13,30 +13,52 @@
       .reference({
         start: 1.5,
         end: 4,
-        word: "punch",
-        definition: "To hit something with a closed fist; a fruity drink",
+        item: "punch",
+        text: "To hit something with a closed fist; a fruity drink",
         target: 'vocab',
         word_list: 'vocab-list'
       })
       .reference({
           start: 6,
           end: 7,
-          word: "paunch",
-          definition: "a huge gut",
+          item: "paunch",
+          text: "a huge gut",
           target: 'vocab',
           word_list: 'vocab-list'
+      })
+      .reference({
+          start: 1.2,
+          end: 4.4,
+          item: "plank",
+          text: "a hit new craze involving the dangerous sport of lying down",
+          target: "vocab",
+          word_list: "vocab-list"
+      })
+      .reference({
+          start: 10,
+          end: 12,
+          item: "a pile of popcorn is being thrown around",
+          target: 'vocab',
+          hide: true,
+          word_list: 'phrases'
       });
     });
   </script>
 </head>
 <body>
+  <h1>Reference Demo</h1>
   <p>
-        This displays two vocabulary words, one from 1.5&ndash;2 seconds, and one from 6&ndash;7 seconds. Clicking on any of the items in the list will bring you directly to the word's placement in the timeline.
+        This displays three vocabulary words, and one phrase. One word goes from 1.5&ndash;4 seconds, one from 6&ndash;7 seconds, and one from 1.2&ndash;4.4 seconds.
+        Clicking on any of the items in the list will bring you directly to the word's placement in the timeline.
+        The phrase will not show up automatically in the video but requires a click to appear, and it should appear at 10 seconds and end at 12.
+  </p>
+  <p>
+      After clicking on any of these items, the video player will automatically pause.
   </p>
   <div>
     <video id="video"
       controls 
-      width="350px"
+      width="350"
       poster="../../test/poster.png">
 
       <source id="mp4"
@@ -54,7 +76,12 @@
   <div id="vocab">
       
   </div>
+  <h2>Auto-Display</h2>
   <ul id="vocab-list">
+      
+  </ul>
+  <h2>Hidden Until Clicked</h2>
+  <ul id="phrases">
       
   </ul>
 </body>

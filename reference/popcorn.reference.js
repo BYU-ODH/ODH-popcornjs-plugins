@@ -23,14 +23,16 @@
              options:{
                start : {elem:'input', type:'text', label:'Begin'},
                end : {elem:'input', type:'text', label:'End'},
-               word : {elem: 'input', type: 'text', label: 'Item'},
-               definition : {elem: 'textarea', label: 'Text'},
-               word_list : {elem: 'select', options: list_targets, label: 'List'}
+               item : {elem: 'input', type: 'text', label: 'Item'},
+               text : {elem: 'textarea', label: 'Text'},
+               word_list : {elem: 'select', options: list_targets, label: 'List'},
+               hide : {elem: 'input', type: 'checkbox', checked: false, label: 'Only on Click'}
              }
            },
            _setup: function( options ){
                var pop = this;
                options._pause = false;
+               options._clicked = false;
                
                // create a link that takes us directly to the vocabulary's start
                var a = document.createElement("a");
@@ -39,17 +41,17 @@
                   ev.preventDefault();
                   // tells us that we will want to pause when this is complete
                   options._pause = true;
+                  options._clicked = true;
                   pop.currentTime(options.start);
                   pop.play();
                });
-               a.innerText = options.word;
+               a.innerText = options.item;
                
                options._target = Popcorn.dom.find(options.target);
                options._container = document.createElement( "div" );
-               options._container.innerHTML = "<dfn>" + options.word + "</dfn> " + options.definition;
+               options._container.innerHTML = "<dfn>" + options.item + "</dfn> " + (options.text || '');
                options._container.style.display = "none";
                options._target.appendChild(options._container);
-               
                
                // find our UL and append our LI
                if(options.word_list) {
@@ -60,7 +62,10 @@
                }
            },
            start: function( event, options ){
-               options._container.style.display = "block";
+               if(!options.hide || options._clicked) {
+                    options._clicked = false;
+                    options._container.style.display = "block";
+               }
            },
            end: function( event, options ){
                // this will be set when we click on a vocab link
