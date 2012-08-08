@@ -1,5 +1,5 @@
 (function (Popcorn) {
-   Popcorn.plugin( "vocab", (function(){
+   Popcorn.plugin( "reference", (function(){
        
        var els = document.getElementsByClassName('content-div');
        var list_targets = [];
@@ -23,9 +23,9 @@
              options:{
                start : {elem:'input', type:'text', label:'Begin'},
                end : {elem:'input', type:'text', label:'End'},
-               word : {elem: 'input', type: 'text', label: 'Word'},
-               definition : {elem: 'input', type: 'text', label: 'Definition'},
-               word_list : {elem: 'select', options: list_targets, label: 'Vocab List'}
+               word : {elem: 'input', type: 'text', label: 'Item'},
+               definition : {elem: 'textarea', label: 'Text'},
+               word_list : {elem: 'select', options: list_targets, label: 'List'}
              }
            },
            _setup: function( options ){

@@ -4,13 +4,13 @@
   <title>Popcorn Skip Segment Plug-in Demo</title>
 
   <script src="../../popcorn.js"></script>
-  <script src="popcorn.vocab.js"></script>
+  <script src="popcorn.reference.js"></script>
   <script>
     document.addEventListener( "DOMContentLoaded", function () {
 
       window.p_skip = Popcorn( "#video" )
       .play()
-      .vocab({
+      .reference({
         start: 1.5,
         end: 4,
         word: "punch",
@@ -18,7 +18,7 @@
         target: 'vocab',
         word_list: 'vocab-list'
       })
-      .vocab({
+      .reference({
           start: 6,
           end: 7,
           word: "paunch",

@@ -24,10 +24,10 @@
                 // Object representation of the plugin options
                 // a form will be constructed against this object
                 options:{
-                start : {elem:'input', type:'text', label:'Skip From'},
-                end : {elem:'input', type:'text', label:'To'},
-                text: {elem: 'textarea', label: 'text'},
-                showOnce : {elem: 'input', type: 'checkbox', label: 'Show only once'}
+                    start : {elem:'input', type:'text', label:'Skip From'},
+                    end : {elem:'input', type:'text', label:'To'},
+                    text: {elem: 'textarea', label: 'text'},
+                    showOnce : {elem: 'input', type: 'checkbox', label: 'Show only once'}
                 }
             },
             _setup: function( options ){
