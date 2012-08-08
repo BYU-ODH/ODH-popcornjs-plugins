@@ -58,7 +58,7 @@
             /**
              * Unbinds timeupdate listener
              */
-            end: function( options ){
+            end: function( event, options ){
                 this.off('timeupdate',function(){
                     skip()
                 });
