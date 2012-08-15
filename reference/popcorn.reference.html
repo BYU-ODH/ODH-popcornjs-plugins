@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Popcorn Skip Segment Plug-in Demo</title>
+  <title>Popcorn Reference Plug-in Demo</title>
 
   <script src="../../popcorn.js"></script>
   <script src="popcorn.reference.js"></script>
   <script>
     document.addEventListener( "DOMContentLoaded", function () {
 
-      window.p_skip = Popcorn( "#video" )
+      window.p = Popcorn( "#video" )
       .play()
       .reference({
         start: 1.5,
@@ -16,7 +16,7 @@
         item: "punch",
         text: "To hit something with a closed fist; a fruity drink",
         target: 'vocab',
-        word_list: 'vocab-list'
+        list: 'vocab-list'
       })
       .reference({
           start: 6,
@@ -24,7 +24,7 @@
           item: "paunch",
           text: "a huge gut",
           target: 'vocab',
-          word_list: 'vocab-list'
+          list: 'vocab-list'
       })
       .reference({
           start: 1.2,
@@ -32,7 +32,7 @@
           item: "plank",
           text: "a hit new craze involving the dangerous sport of lying down",
           target: "vocab",
-          word_list: "vocab-list"
+          list: "vocab-list"
       })
       .reference({
           start: 10,
@@ -40,7 +40,7 @@
           item: "a pile of popcorn is being thrown around",
           target: 'vocab',
           hide: true,
-          word_list: 'phrases'
+          list: 'phrases'
       });
     });
   </script>
