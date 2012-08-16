@@ -14,11 +14,9 @@
 (function (Popcorn) {
    Popcorn.plugin( "modal", function(){
        
-       var _container = undefined;
-       var _mask = undefined;
-       var close = function() {
-           _mask.style.display = 'none';
-           _container.style.display = 'none';
+       var close = function( options ) {
+           options._mask.style.display = 'none';
+           options._container.style.display = 'none';
        };
        
        return {
@@ -42,9 +40,9 @@
             _setup: function( options ){
                 options._seen = false;
 
-                _mask = document.createElement('div');
-                _mask.className = 'popcorn-modal-mask';
-                with(_mask.style) {
+                options._mask = document.createElement('div');
+                options._mask.className = 'popcorn-modal-mask';
+                with(options._mask.style) {
                         zIndex = 1000;
                         width = '100%';
                         height = '100%';
@@ -56,7 +54,7 @@
                         display = 'none';
                 }
 
-                document.body.appendChild(_mask);
+                document.body.appendChild(options._mask);
 
                 var container = document.createElement('div');
                 container.className = 'popcorn-modal-holder';
@@ -98,10 +96,10 @@
                 container.appendChild(text);
                 document.body.appendChild(container);
 
-                _container = container;
+                options._container = container;
 
-                _mask.addEventListener('click', close);
-                exit.addEventListener('click',close);
+                options._mask.addEventListener('click', function(){close(options)});
+                exit.addEventListener('click', function(){close(options)});
             },
             start: function( event, options ){
                 if(options.showOnce && options._seen) {
@@ -109,16 +107,16 @@
                 }
 
                 options._seen = true;
-                _mask.style.display = 'block';
-                _container.style.display = 'block';
+                options._mask.style.display = 'block';
+                options._container.style.display = 'block';
                 this.pause();
             },
             end: function( event, options ){
                 // do nothing
             },
             _tearDown: function( options ){
-                document.body.removeChild(_mask);
-                document.body.removeChild(_container);
+                document.body.removeChild(options._mask);
+                document.body.removeChild(options._container);
             }
        }
    }());
