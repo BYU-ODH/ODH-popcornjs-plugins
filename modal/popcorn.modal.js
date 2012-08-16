@@ -32,10 +32,11 @@
                 // Object representation of the plugin options
                 // a form will be constructed against this object
                 options:{
-                    start : {elem:'input', type:'text', label:'Skip From'},
+                    start : {elem:'input', type:'text', label:'Display at'},
                     end : {elem:'input', type:'text', label:'To'}, // this is unneeded
+                    showOnce : {elem: 'input', type: 'checkbox', label: 'Show only once'},
                     text: {elem: 'textarea', label: 'text'},
-                    showOnce : {elem: 'input', type: 'checkbox', label: 'Show only once'}
+                    target : {hidden: true}
                 }
             },
             _setup: function( options ){

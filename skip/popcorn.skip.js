@@ -40,7 +40,8 @@
                 // a form will be constructed against this object
                 options:{
                     start : {elem:'input', type:'text', label:'Skip From'},
-                    end : {elem:'input', type:'text', label:'To'}
+                    end : {elem:'input', type:'text', label:'To'},
+                    target : {hidden: true}
                 }
             },
             _setup: function( options ){
