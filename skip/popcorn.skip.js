@@ -17,17 +17,15 @@
  *   });
  */
 (function (Popcorn) {
-   Popcorn.plugin( "skip", function( options ){
-       
-       var pop = this;
+   Popcorn.plugin( "skip", (function(){
        
        /**
         * Jumps ahead to a specified time.
         * This is specified as a separate function for ease-of-use with binding
         * and unbinding.
         */
-       function skip(){
-           pop.currentTime(options.end);
+       function skip( options ){
+           options._pop.currentTime(options.end);
        }
        
        return {
@@ -45,14 +43,17 @@
                     end : {elem:'input', type:'text', label:'To'}
                 }
             },
+            _setup: function( options ){
+                options._pop = this;
+            },
             /**
              * Skips to the end and set a timeupdate listener to skip to the end if
              * someone is seeking
              */
             start: function( event, options ){
-                skip();
+                skip(options);
                 this.on('timeupdate',function(){
-                    skip()
+                    skip(options)
                 });
             },
             /**
@@ -60,7 +61,7 @@
              */
             end: function( event, options ){
                 this.off('timeupdate',function(){
-                    skip()
+                    skip(options)
                 });
             },
             /**
@@ -69,9 +70,9 @@
              */
             _tearDown: function( options ){
                 this.off('timeupdate',function(){
-                    skip()
+                    skip(options)
                 });
             }
        }
-   });
+   })());
 })(Popcorn);
