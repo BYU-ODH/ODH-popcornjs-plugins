@@ -1,0 +1,66 @@
+
+{"media": [ 
+{
+
+"id": "yt:EpohyP55WHo",
+"name":"YSBLF Cap 1/1",
+"url": [ "http://www.youtube.com/watch?v=EpohyP55WHo" ],
+
+"playSettings": { 
+"forceRestricted": "1",
+"framerate": "30" },
+"target": "main",
+"tracks": [
+{ "name": "Annotation List for YSBLF Cap 1/1",
+"id": "vcp:30",
+"trackEvents" : [
+{"id": "TrackEvent0",
+"type":"modal",
+"popcornOptions": 
+{"start":"0",
+"end":""
+
+,"description":"<p>Yo soy Betty, la fea representa la vida laboral en Colombia. La protagonista es una joven muy inteligente y trabajadora pero tiene un problema muy grande, es muy fea. Debido a que es tan fea es muy difÃ­cil para ella encontrar un buen trabajo. Betty se presenta a una entrevista de trabajo en ECOMODAâ€”una empresa de modaâ€”y tiene miedo de no ser contratada por ser muy fea.</p><p>Chapter 1 Introduction<br/>Yo Soy Betty, la Fea (I am Ugly Betty) is a soap opera depicting the Colombian workplace. The main character of this soap opera is an intelligent and hard-working young woman who faces a big problemâ€”she is ugly, which makes it hard for her to find a good job. Betty shows up for a job interview at Ecomoda, a fashion company, despite her fears that she will not be hired because of her looks.</p>"
+,
+"target":"popup"}
+
+},
+{"id": "TrackEvent1",
+"type":"reference",
+"popcornOptions": 
+{"start":"30.4",
+"end":"33.4"
+
+,"item":"el tinto",
+"text":"[in Colombia] coffee",
+"list":"vocabulary"
+,
+"target":"_caption"}
+
+},
+{"id": "TrackEvent2",
+"type":"reference",
+"popcornOptions": 
+{"start":"103.2",
+"end":"110.7"
+
+,"item":"Â¡No se le ocurra ni por chiste!",
+"text":"dont even think about it!",
+"list":"vocabulary"
+,
+"target":"_caption"}
+
+},
+{"id": "TrackEvent3",
+"type":"skip",
+"popcornOptions": 
+{"start":"112.3",
+"end":"122.3"
+,
+"target":"main"}
+
+}]
+}
+]
+}
+]}

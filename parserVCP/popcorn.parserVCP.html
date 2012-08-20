@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Popcorn 1.0 JSON parser Plug-in Demo</title>
+
+    <script src="../../popcorn.js"></script>
+    <script src="../../../modules/parser/popcorn.parser.js"></script>
+    <script src="../modal/popcorn.modal.js"></script>
+    <script src="../skip/popcorn.skip.js"></script>
+    <script src="../reference/popcorn.reference.js"></script>
+    <script src="popcorn.parserVCP.js"></script>
+
+  </head>
+  <body>
+    <h1 id="qunit-header">Popcorn 1.0 JSON parser Plug-in Demo</h1>
+    <p></p>
+    <div>
+      <video id="video"
+        controls
+        width= "250px"
+        poster="../../test/poster.png">
+      </video>
+    </div>
+
+    <style>
+      .displays {
+        width: 300px;
+        height: 300px;
+      }
+    </style>
+    <div class="displays" id="iframe-container"></div>
+    <div class="displays" id="map-container"></div>
+    <div class="displays" id="footnote-container"></div>
+
+    <script>
+        Popcorn("#video").parseVCP('vcp.json');
+    </script>
+  </body>
+</html>
