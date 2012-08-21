@@ -9,7 +9,7 @@
  *  _mask The DOM element used to dim the background
  *  _seen Whether or not the user has seen this modal or not
  *  
- *  @todo When zero-duration events are supported, remove this
+ *  @todo Handle stacking of modals, etc.
  */
 (function (Popcorn) {
    Popcorn.plugin( "modal", function(){
@@ -18,6 +18,16 @@
            options._mask.style.display = 'none';
            options._container.style.display = 'none';
        };
+       
+       var reposition = function( container ) {
+            if(container.style.display == 'none') {
+                return;
+            }
+            container.style.marginTop = '-' + (container.offsetHeight/2) + 'px';
+            container.style.marginLeft = '-' + (container.offsetWidth/2) + 'px';
+            container.style.top = '50%';
+            container.style.left = '50%';
+       }
        
        return {
             // Define a manifest for the butter authoring tool to use
@@ -63,17 +73,9 @@
                         zIndex = 1001;
                         backgroundColor = '#FFF';
                         position = 'fixed';
-                        top = '50%';
-                        left = '50%';
                         display = 'none';
-//                        minWidth = '100px';
-//                        minHeight = '100px';
                         padding = '10px';
                         boxShadow = '3px 3px black';
-                        setTimeout(function(){
-                            marginTop = '-' + (container.offsetHeight/2) + 'px';
-                            marginLeft = '-' + (container.offsetWidth/2) + 'px';
-                        })
                 }
                 
                 var exit = document.createElement('div');
@@ -97,9 +99,13 @@
                 document.body.appendChild(container);
 
                 options._container = container;
+                options._reposition = function() {
+                    return reposition(options._container);
+                }
 
                 options._mask.addEventListener('click', function(){close(options)});
                 exit.addEventListener('click', function(){close(options)});
+                window.addEventListener('resize', options._reposition);
             },
             start: function( event, options ){
                 if(options.showOnce && options._seen) {
@@ -109,6 +115,7 @@
                 options._seen = true;
                 options._mask.style.display = 'block';
                 options._container.style.display = 'block';
+                options._reposition();
                 this.pause();
             },
             end: function( event, options ){
@@ -117,6 +124,7 @@
             _tearDown: function( options ){
                 document.body.removeChild(options._mask);
                 document.body.removeChild(options._container);
+                window.removeEventListener('resize', options._reposition);
             }
        }
    }());
