@@ -14,7 +14,7 @@
  *  end - when to stop displaying the item
  *  item - the item to display in the list and in a the target
  *  text - any additional details about the item
- *  list - the list element to populate with this item
+ *  list - the element to populate with this item
  *  target - the element to display the item and description between the start and end times
  *  hide - whether or not to only display the item in the target when it's clicked on
  * 
@@ -35,6 +35,7 @@
        
        /**
         * @todo Is there any way to do populate our list targets but only within Butter?
+        * tthese list_targets and els are only used in the Butter manifest
         */
        var els = document.getElementsByClassName('content-div');
        var list_targets = [];
@@ -44,6 +45,8 @@
            }
            list_targets.push(els[i].getAttribute('id'));
        }
+       
+       var _uls = {}; // a collection of our keyed-by-target unordered lists
        
        return {
            // Define a manifest for the butter authoring tool to use
@@ -72,6 +75,12 @@
                options._pause = false;
                options._clicked = false;
                
+               if(!_uls[options.list]) {
+                   _uls[options.list] = document.createElement('ul');
+                   Popcorn.dom.find(options.list).appendChild(_uls[options.list]);
+               }
+               options._ul = _uls[options.list];
+               
                // create a link that takes us directly to the vocabulary's start
                var a = document.createElement("a");
                a.setAttribute('href','#');
@@ -91,12 +100,26 @@
                options._container.style.display = "none";
                options._target.appendChild(options._container);
                
-               // find our UL and append our LI
-               if(options.list) {
-                   options._list = Popcorn.dom.find(options.list);
+               var ul = options._ul;
+               if(ul) {
                    options._li = document.createElement( "li" );
+                   options._li.setAttribute('data-popcorn-reference-start',options.start);
                    options._li.appendChild(a);
-                   options._list.appendChild(options._li);
+                   ul.appendChild(options._li);
+                   
+                   if(ul.children.length > 1) {
+                       // sort by start time
+                       var tmpChildren = [];
+                       for(var i=0; i<ul.children.length; i++) {
+                           tmpChildren.push(ul.children[i]);
+                       }
+                       tmpChildren.sort(function( a, b ){
+                           return a.getAttribute('data-popcorn-reference-start') - b.getAttribute('data-popcorn-reference-start');
+                       });
+                       for(i=0; i<tmpChildren.length; i++) {
+                            ul.appendChild(tmpChildren[i]);
+                       }
+                   }
                }
            },
            /**
@@ -125,8 +148,15 @@
             * Remove elements from the DOM
             */
            _teardown: function( options ){
-                if(options._list) {
-                    options._list.removeChild(options._li);
+                var ul = options._ul;
+                
+                if(ul) {
+                    ul.removeChild(options._li);
+                    
+                    if(!ul.children.length) {
+                        Popcorn.dom.find(options.list).removeChild(ul);
+                        delete _uls[options.list];
+                    }
                 }
                 if(options._target) {
                     options._target.removeChild(options._container);

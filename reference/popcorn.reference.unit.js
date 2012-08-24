@@ -59,7 +59,7 @@ test( "Popcorn Reference Plugin", function() {
   // empty track events should be safe
   Popcorn.plugin.debug = true;
   
-  var list = document.getElementById("list"),
+  var list = document.getElementById("list").childNodes[0],
       annotations = document.getElementById("annotation"),
       normalAnnot = annotations.childNodes[0],
       hideAnnot = annotations.childNodes[1],
