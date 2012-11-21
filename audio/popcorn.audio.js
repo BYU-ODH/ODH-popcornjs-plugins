@@ -1,8 +1,8 @@
 /**
  * This plugin will play an audio file, optionally muting the currently-playing media
  * 
- * - start is the time you wish to start skipping
- * - end is the time you wish to resume playback
+ * - start is the time you wish to start playing the audio track
+ * - end is the time you wish to stop playing the separate audio track
  * - url is a URL (absolute or relative) to an audio file to play
  * - mute boolean - whether or not to mute the media while playing the given file
  * - clip how many seconds into the audio file to start playing from - defaults to 0

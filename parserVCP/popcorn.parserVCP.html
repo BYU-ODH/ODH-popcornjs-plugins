@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Popcorn 1.0 JSON parser Plug-in Demo</title>
+    <title>Popcorn VCP parser Plug-in Demo</title>
 
     <script src="../../popcorn.js"></script>
     <script src="../../../modules/parser/popcorn.parser.js"></script>
+    <script src="../../../modules/player/popcorn.player.js"></script>
+    <script src="../../../players/youtube/popcorn.youtube.js"></script>
     <script src="../modal/popcorn.modal.js"></script>
     <script src="../skip/popcorn.skip.js"></script>
     <script src="../reference/popcorn.reference.js"></script>
@@ -12,14 +14,9 @@
 
   </head>
   <body>
-    <h1 id="qunit-header">Popcorn 1.0 JSON parser Plug-in Demo</h1>
+    <h1 id="qunit-header">Popcorn 1.0 VCP parser Plug-in Demo</h1>
     <p></p>
-    <div>
-      <video id="video"
-        controls
-        width= "250px"
-        poster="../../test/poster.png">
-      </video>
+    <div id="video-holder">
     </div>
 
     <style>
@@ -33,7 +30,12 @@
     <div class="displays" id="footnote-container"></div>
 
     <script>
-        Popcorn("#video").parseVCP('vcp.json');
+        var p = Popcorn("#video-holder");
+        p.parseVCP('vcp.json')
+        .modal({
+            start: 3,
+            description: "Lorem ipsum!"
+        });
     </script>
   </body>
 </html>
