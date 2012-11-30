@@ -24,7 +24,15 @@
         * This is specified as a separate function for ease-of-use with binding
         * and unbinding.
         */
-       function skip( options ){
+       function skip( options ) {
+           var pop = options._pop;
+
+           // this was added because of an issue with Youtube where this would be called multiple times
+           // this prevents the skip method from being called if the player is not within the skipped time
+           if( pop.currentTime() >= options.end || pop.currentTime() < options.start) {
+                pop.off('timeupdate', function() { skip( options ); } );
+                return;
+           }
            options._pop.currentTime(options.end);
        }
        
