@@ -6,11 +6,16 @@
         }
         else
         {
-            return str;
+            // @TODO: lose the controls query string thing
+            return str + "&controls=1";
         }
     }
     
-    Popcorn.parser( "parseVCP", "JSON", function( data, p ) {
+    /**
+       @todo need access to the 
+    **/
+    Popcorn.parser( "parseVCP", "JSON", function( data ) {
+        console.log(arguments);
         // declare needed variables
         var retObj = {
             title: "",
@@ -20,8 +25,7 @@
             manifestData = {},
             media = data.media[0];
 
-        retObj.p = Popcorn.youtube(p.media,extractURL(media.url[0]));
-//        this = Popcorn.smart(extractURL(media.url[0]));
+        window.poppo = retObj.p = Popcorn.smart(this.media.id,extractURL(media.url[0]));
 
         // @TODO - this 'remote' property is never used by the caller
         retObj.remote = extractURL(media.url[0]);
