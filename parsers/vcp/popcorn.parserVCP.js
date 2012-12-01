@@ -15,17 +15,14 @@
        @todo need access to the 
     **/
     Popcorn.parser( "parseVCP", "JSON", function( data ) {
-        console.log(arguments);
         // declare needed variables
         var retObj = {
-            title: "",
-            remote: "",
-            data: []
+                title: "",
+                remote: "",
+                data: []
             },
             manifestData = {},
             media = data.media[0];
-
-        window.poppo = retObj.p = Popcorn.smart(this.media.id,extractURL(media.url[0]));
 
         // @TODO - this 'remote' property is never used by the caller
         retObj.remote = extractURL(media.url[0]);
