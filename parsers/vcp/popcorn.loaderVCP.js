@@ -18,7 +18,8 @@
            else
            {
               // @TODO: lose the controls query string thing
-              return str + "&controls=1";
+              // (this ensures that a YouTube video will come back with controls)
+              return str + (str.indexOf("?") != -1 ? "" : "?") + "&controls=1";
            }
     }
 
