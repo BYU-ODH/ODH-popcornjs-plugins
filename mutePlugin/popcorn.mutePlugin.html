@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Popcorn Mute Segment Plug-in Demo</title>
+
+  <script src="../../popcorn.js"></script>
+  <script src="popcorn.mutePlugin.js"></script>
+  <script>
+    document.addEventListener( "DOMContentLoaded", function () {
+
+      window.p_mute = Popcorn( "#video" )
+      .play()
+      .mutePlugin({
+        start: 1.5,
+        end: 4
+      })
+      .mutePlugin({
+        start: 30,
+        end: 50
+      });
+    });
+  </script>
+</head>
+<body>
+    <p>
+        This mutes from 1.5 seconds to 4 seconds and from 30 seconds to 50 seconds.
+    </p>
+  <div>
+    <video id="video"
+      controls 
+      width="350px"
+      poster="../../test/poster.png">
+
+      <source id="ogg"
+        src="http://upload.wikimedia.org/wikipedia/commons/5/54/DuckandC1951.ogg"
+        type='video/ogg; codecs="theora, vorbis"'>
+      
+      <source id="mp4"
+        src="../../test/trailer.mp4"
+        type='video/mp4; codecs="avc1, mp4a"'>
+
+      <p>Your user agent does not support the HTML5 Video element.</p>
+
+    </video>
+  </div>
+</body>
+</html>
