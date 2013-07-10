@@ -1,7 +1,7 @@
 /**
  * Options:
  *  start
- *  description mixed The text to display in the modal
+ *  text mixed The text to display in the modal
  *  showOnce boolean Whether or not to display this modal more than once a page-refresh
  *  
  * Internal Properties:
@@ -43,7 +43,7 @@
                     start : {elem:'input', type:'text', label:'Display at'},
                     end : {elem:'input', type:'text', label:'To'}, // this is unneeded
                     showOnce : {elem: 'input', type: 'checkbox', label: 'Show only once'},
-                    description: {elem: 'textarea', label: 'text'},
+                    text: {elem: 'textarea', label: 'text'},
                     target : {hidden: true}
                 }
             },
@@ -93,7 +93,7 @@
                 
                 var text = document.createElement('div');
                 text.className = 'popcorn-modal-contents';
-                text.innerHTML = options.description;
+                text.innerHTML = options.text;
                 container.appendChild(exit);
                 container.appendChild(text);
                 document.body.appendChild(container);
