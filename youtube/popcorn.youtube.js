@@ -16,7 +16,8 @@
            _setup: function( options ) {
                var url = api + '?maxResults=5&part=snippet&q=' + options.item,
                    el = document.createElement('div'),
-                   txt = document.createTextNode('Loading...');
+                   txt = document.createTextNode('Loading...'),
+                   pop = this;
 
                if(options.key) { url += "&key=" + options.key; }
 
@@ -34,10 +35,19 @@
 
                        /**@TODO: not sure what to populate this with yet **/
                        for(var i = 0; i<data.items.length; i++) {
-                           var item = document.createElement('li');
-                           var img = document.createElement('img');
+                           var item = document.createElement('li'),
+                               img = document.createElement('img'),
+                               link = document.createElement('a');
+
+                           link.href = 'http://www.youtube.com/watch?v=' + data.items[i].id.videoId;
+                           link.target = '_blank';
+                           link.onclick = function() {
+                               pop.pause();
+                           };
                            img.src = data.items[i].snippet.thumbnails.default.url;
-                           item.appendChild(img);
+                           
+                           link.appendChild(img);
+                           item.appendChild(link);
                            list.appendChild(item);
                        };
                        el.appendChild(list);
