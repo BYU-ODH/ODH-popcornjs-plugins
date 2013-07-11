@@ -44,7 +44,7 @@
                            link.onclick = function() {
                                pop.pause();
                            };
-                           img.src = data.items[i].snippet.thumbnails.default.url;
+                           img.src = data.items[i].snippet.thumbnails['default'].url;
                            
                            link.appendChild(img);
                            item.appendChild(link);
