@@ -77,7 +77,7 @@
                
                if(!_uls[options.list]) {
                    _uls[options.list] = document.createElement('ul');
-                   Popcorn.dom.find(options.list).appendChild(_uls[options.list]);
+                   Popcorn.dom.find(options.target).appendChild(_uls[options.list]);
                }
                options._ul = _uls[options.list];
                
