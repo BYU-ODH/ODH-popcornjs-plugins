@@ -3,7 +3,7 @@
  * @TODO: documentation, etc.
  */
 (function (Popcorn) {
-   Popcorn.plugin( "interactive", (function(){
+   Popcorn.plugin( "interaction", (function(){
        return {
             _setup: function( options ){
                 var el = document.createElement('el'),
@@ -11,7 +11,7 @@
                     input = document.createElement('textarea'),
                     txt = document.createTextNode(options.text);
 
-                el.className = 'popcorn-plugin-interactive';
+                el.className = 'popcorn-plugin-interaction';
                 el.style.display = 'none';
                 el.appendChild(p);
                 el.appendChild(input);
@@ -22,6 +22,7 @@
                 Popcorn.dom.find(options.target).appendChild(el);
             },
             start: function( event, options ){
+                this.pause();
                 options._el.style.display = 'block';
             },
             end: function( event, options ){
