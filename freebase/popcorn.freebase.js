@@ -14,9 +14,11 @@
 
        return {
            _setup: function( options ) {
-               var url = api + options.item + "?key=" + options.key,
+               var url = api + options.item,
                    el = document.createElement('p'),
                    txt = document.createTextNode('Loading...');
+
+               if(options.key) { url += "?key=" + options.key; }
 
                options._el = el;
                el.appendChild(txt);
@@ -28,8 +30,8 @@
                        el.removeChild(txt);
                        /**@TODO: not sure what to populate this with yet, so just use first element **/
                        for(var i in data.property) {
-                           if(data.property.hasOwnProperty(i) {
-                               var newtxt = document.createTextNode(i.values[0].text);
+                           if(data.property.hasOwnProperty(i)) {
+                               var newtxt = document.createTextNode(data.property[i].values[0].text);
                                el.appendChild(newtxt);
                                break;
                            }
