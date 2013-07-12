@@ -1,6 +1,6 @@
 /**
  * Example:
- * pop.freebase({
+ * pop['popcorn-plugin-youtube']({
  *      start: 10,
  *      end: 15,
  *      target: "elementID",
@@ -9,7 +9,7 @@
  * });
  */
 (function ( Popcorn ) {
-   Popcorn.plugin( "youtube", ( function() {
+   Popcorn.plugin( "youtube-search", ( function() {
        var api = "https://www.googleapis.com/youtube/v3/search";
 
        return {

@@ -1,27 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Popcorn Skip Segment Plug-in Demo</title>
+  <title>Popcorn YouTube Plug-in Demo</title>
 
   <script src="../../popcorn.js"></script>
-  <script src="popcorn.freebase.js"></script>
+  <script src="popcorn.youtube.js"></script>
   <script>
     document.addEventListener( "DOMContentLoaded", function () {
 
       window.p_skip = Popcorn( "#video" )
       .play()
-      .freebase({
+      ['youtube-search']({
         start: 2.5,
         end: 5,
-        item: '/m/09v38qj',
-        target: 'onedayhamsterswillruletheworldimnotevenjoking'
+        item: 'snuggie',
+        target: 'onedayhamsterswillruletheworldimnotevenjoking',
+        key: 'AIzaSyBOBtBbB_G5M8ys6mCnyV6kLpnAd_scyKk'
+      })
+      ['youtube-search']({
+        start: 8,
+        end: 14,
+        item: 'slanket',
+        target: 'onedayhamsterswillruletheworldimnotevenjoking',
+        key: 'AIzaSyBOBtBbB_G5M8ys6mCnyV6kLpnAd_scyKk'
       });
     });
   </script>
 </head>
 <body>
     <p>
-        This displays text from freebase for element /m/09v38qj between 2.5 and 5 seconds
+        This displays the results of a YouTube search for "snuggie" from 2.5 to 5 seconds and for "slanket" between 8 and 14 seconds. 
     </p>
   <div>
     <video id="video"
