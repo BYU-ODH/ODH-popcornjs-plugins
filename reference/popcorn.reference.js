@@ -14,7 +14,6 @@
  *  end - when to stop displaying the item
  *  item - the item to display in the list and in a the target
  *  text - any additional details about the item
- *  list - the element to populate with this item
  *  target - the element to display the item and description between the start and end times
  *  hide - whether or not to only display the item in the target when it's clicked on
  * 
@@ -32,20 +31,27 @@
  */
 (function (Popcorn) {
    Popcorn.plugin( "reference", (function(){
-       
-       /**
-        * @todo Is there any way to do populate our list targets but only within Butter?
-        * tthese list_targets and els are only used in the Butter manifest
-        */
-       var els = document.getElementsByClassName('content-div');
-       var list_targets = [];
-       for(var i=0; i<els.length; i++) {
-           if(!els[i].getAttribute('id')) {
-               els[i].setAttribute('id',this.guid('area'));
+
+       function arrangeChildrenByTime(parentEl) {
+           if(parentEl.children.length <= 1) {
+               return;
            }
-           list_targets.push(els[i].getAttribute('id'));
-       }
-       
+
+           var tmpChildren = [];
+           
+           for(var i=0; i<parentEl.children.length; i++) {
+               tmpChildren.push(parentEl.children[i]);
+           }
+           
+           tmpChildren.sort(function sortByTime( a, b ){
+               return a.getAttribute('data-popcorn-reference-start') - b.getAttribute('data-popcorn-reference-start');
+           });
+           
+           for(i=0; i<tmpChildren.length; i++) {
+                parentEl.appendChild(tmpChildren[i]);
+           }
+       };
+        
        var _uls = {}; // a collection of our keyed-by-target unordered lists
        
        return {
@@ -63,10 +69,10 @@
                end : {elem:'input', type:'text', label:'End'},
                item : {elem: 'input', type: 'text', label: 'Item'},
                text : {elem: 'textarea', label: 'Text'},
-               list : {elem: 'select', options: list_targets, label: 'List'},
-               hide : {elem: 'input', type: 'checkbox', checked: false, label: 'Only on Click'}
+               hide : {elem: 'input', type: 'checkbox', checked: false, label: 'Show Only on Click'}
              }
            },
+
            /**
             * Creates our li element as well as our annotation div and places them in the DOM
             */
@@ -74,53 +80,44 @@
                var pop = this;
                options._pause = false;
                options._clicked = false;
+               var _target = Popcorn.dom.find(options.target);
+               options._target = _target;
                
-               if(!_uls[options.list]) {
-                   _uls[options.list] = document.createElement('ul');
-                   Popcorn.dom.find(options.target).appendChild(_uls[options.list]);
+               if(!_uls[options.target]) {
+                   _uls[options.target] = document.createElement('ul');
+                   _target.appendChild(_uls[options.target]);
                }
-               options._ul = _uls[options.list];
+               options._ul = _uls[options.target];
                
                // create a link that takes us directly to the vocabulary's start
                var a = document.createElement("a");
+               var text = document.createTextNode(options.item);
+               a.appendChild(text);
                a.setAttribute('href','#');
                a.addEventListener('click',function(ev){
                   ev.preventDefault();
                   // tells us that we will want to pause when this is complete
+                  /**
+                   * @TODO: Need to handle what happens when multiple links are clicked in succession
+                   */
                   options._pause = true;
                   options._clicked = true;
                   pop.currentTime(options.start);
                   pop.play();
                });
-               a.innerText = options.item;
                
-               options._target = Popcorn.dom.find(options.target);
                options._container = document.createElement( "div" );
                options._container.innerHTML = "<dfn>" + options.item + "</dfn> " + (options.text || '');
                options._container.style.display = "none";
                options._target.appendChild(options._container);
                
                var ul = options._ul;
-               if(ul) {
-                   options._li = document.createElement( "li" );
-                   options._li.setAttribute('data-popcorn-reference-start',options.start);
-                   options._li.appendChild(a);
-                   ul.appendChild(options._li);
-                   
-                   if(ul.children.length > 1) {
-                       // sort by start time
-                       var tmpChildren = [];
-                       for(var i=0; i<ul.children.length; i++) {
-                           tmpChildren.push(ul.children[i]);
-                       }
-                       tmpChildren.sort(function( a, b ){
-                           return a.getAttribute('data-popcorn-reference-start') - b.getAttribute('data-popcorn-reference-start');
-                       });
-                       for(i=0; i<tmpChildren.length; i++) {
-                            ul.appendChild(tmpChildren[i]);
-                       }
-                   }
-               }
+               options._li = document.createElement( "li" );
+               options._li.setAttribute('data-popcorn-reference-start',options.start);
+               options._li.appendChild(a);
+               ul.appendChild(options._li);
+               
+               arrangeChildrenByTime(ul);
            },
            /**
             * Display the element
@@ -129,7 +126,7 @@
            start: function( event, options ){
                if(!options.hide || options._clicked) {
                     options._clicked = false;
-                    options._container.style.display = "block";
+                    options._container.style.display = "";
                }
            },
            /**
@@ -154,8 +151,8 @@
                     ul.removeChild(options._li);
                     
                     if(!ul.children.length) {
-                        Popcorn.dom.find(options.list).removeChild(ul);
-                        delete _uls[options.list];
+                        Popcorn.dom.find(options.target).removeChild(ul);
+                        delete _uls[options.target];
                     }
                 }
                 if(options._target) {

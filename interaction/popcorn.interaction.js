@@ -5,6 +5,21 @@
 (function (Popcorn) {
    Popcorn.plugin( "interaction", (function(){
        return {
+            // Define a manifest for the butter authoring tool to use
+            manifest: {
+                // Plugin meta data
+                // will be used in the butter ui
+                about:{
+                    name: "Interaction"
+                },
+                // Object representation of the plugin options
+                // a form will be constructed against this object
+                options:{
+                    start : {elem:'input', type:'text', label:'Start'},
+                    end : {elem:'input', type:'text', label:'End'},
+                    text : {elem: 'textarea', label: 'Prompt'}
+                }
+            },
             _setup: function( options ){
                 var el = document.createElement('el'),
                     p = document.createElement('p'),
