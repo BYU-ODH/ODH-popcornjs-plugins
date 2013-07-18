@@ -12,6 +12,21 @@
    Popcorn.plugin( "freebase-search", ( function() {
        var api = "https://www.googleapis.com/freebase/v1/topic";
        return {
+            // Define a manifest for the butter authoring tool to use
+            manifest: {
+                // Plugin meta data
+                // will be used in the butter ui
+                about:{
+                    name: "Freebase Search"
+                },
+                // Object representation of the plugin options
+                // a form will be constructed against this object
+                options:{
+                    start : {elem:'input', type:'text'},
+                    end : {elem:'input', type:'text'},
+                    item : {elem: 'input', label: 'Topic (i.e., /m/blahblah)'}
+                }
+            },
            _setup: function( options ) {
                var url = api + options.item,
                    el = document.createElement('div'),
