@@ -32,7 +32,7 @@
                 Popcorn.dom.find(options.target).appendChild(p);
             },
             start: function( event, options ){
-                options._p.style.display = 'block';
+                options._p.style.display = '';
             },
             end: function( event, options ){
                 options._p.style.display = 'none';
@@ -40,6 +40,6 @@
             _tearDown: function( options ){
                 options._p.parentNode.removeChild(options._p);
             }
-       }
+       };
    })());
 })(Popcorn);
