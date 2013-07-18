@@ -6,7 +6,8 @@
  *      target: "elementID",
  *      results: 4, // how many videos to return, default is 4 
  *      key: "YOURYOUTUBEAPIKEY",
- *      item: "charlie bit my finger"
+ *      item: "charlie bit my finger",
+ *      text: "any description you want to give to this collection of videos"
  * });
  */
 (function ( Popcorn ) {
@@ -28,7 +29,8 @@
                     start : {elem:'input', type:'text'},
                     end : {elem:'input', type:'text'},
                     item : {elem: 'input', label: 'Search Query', type: 'text'},
-                    results : {elem: 'input', type: 'number', label: 'Results', "default": 4, units: 'videos'}
+                    results : {elem: 'input', type: 'number', label: 'Results', "default": 4, units: 'videos'},
+                    text : {elem: 'textarea', label: 'Description'}
                 }
             },
            _setup: function( options ) {
@@ -50,14 +52,17 @@
                Popcorn.getJSONP( url, function populateData( data ) {
                    if(options._el) { // does the element still exist? If not, don't do anything
                        if(data.error) {
-                           text.innerHTML = 'There was an error pulling data from YouTube.';
+                           var err = document.createTextNode('There was an error pulling data from Youtube');
+                           el.removeChild(txt);
+                           el.appendChild(txt);
                            return;
                        }
                        el.removeChild(txt);
                        var container = document.createElement('div');
                        container.className = 'youtube-note';
                        var header = document.createElement('h3');
-                       header.innerHTML="<img src=\"https://developers.google.com/youtube/images/YouTube_logo_standard_white.png\"/> "+options.text;
+                       header.innerHTML="<img src=\"https://developers.google.com/youtube/images/YouTube_logo_standard_white.png\"/> "
+                           + (options.text || '');
                        container.appendChild(header);
                        var list = document.createElement('ul');
                        for(var i = 0; i<data.items.length; i++) {
