@@ -4,17 +4,37 @@
  *      start: 10,
  *      end: 15,
  *      target: "elementID",
- *      key: "YOURFREEBASEAPIKEY",
- *      item: "/m/somethingorother"
+ *      results: 4, // how many videos to return, default is 4 
+ *      key: "YOURYOUTUBEAPIKEY",
+ *      item: "charlie bit my finger"
  * });
  */
 (function ( Popcorn ) {
    Popcorn.plugin( "youtube-search", ( function() {
        var api = "https://www.googleapis.com/youtube/v3/search";
+       var defaultVideoCount = 4;
 
        return {
+            // Define a manifest for the butter authoring tool to use
+            manifest: {
+                // Plugin meta data
+                // will be used in the butter ui
+                about:{
+                    name: "Youtube Search"
+                },
+                // Object representation of the plugin options
+                // a form will be constructed against this object
+                options:{
+                    start : {elem:'input', type:'text'},
+                    end : {elem:'input', type:'text'},
+                    item : {elem: 'input', label: 'Search Query', type: 'text'},
+                    results : {elem: 'input', type: 'number', label: 'Results', "default": 4, units: 'videos'}
+                }
+            },
            _setup: function( options ) {
-               var url = api + '?maxResults=5&part=snippet&q=' + options.item,
+               options.results = options.results || defaultVideoCount;
+
+               var url = api + '?maxResults=' + options.results + '&part=snippet&q=' + options.item,
                    el = document.createElement('div'),
                    txt = document.createTextNode('Loading...'),
                    pop = this;
@@ -29,11 +49,17 @@
 
                Popcorn.getJSONP( url, function populateData( data ) {
                    if(options._el) { // does the element still exist? If not, don't do anything
+                       if(data.error) {
+                           text.innerHTML = 'There was an error pulling data from YouTube.';
+                           return;
+                       }
                        el.removeChild(txt);
-
+                       var container = document.createElement('div');
+                       container.className = 'youtube-note';
+                       var header = document.createElement('h3');
+                       header.innerHTML="<img src=\"https://developers.google.com/youtube/images/YouTube_logo_standard_white.png\"/> "+options.text;
+                       container.appendChild(header);
                        var list = document.createElement('ul');
-
-                       /**@TODO: not sure what to populate this with yet **/
                        for(var i = 0; i<data.items.length; i++) {
                            var item = document.createElement('li'),
                                img = document.createElement('img'),
@@ -50,7 +76,8 @@
                            item.appendChild(link);
                            list.appendChild(item);
                        };
-                       el.appendChild(list);
+                       container.appendChild(list);
+                       el.appendChild(container);
                    };
                });
            },
