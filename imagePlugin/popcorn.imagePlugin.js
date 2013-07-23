@@ -19,7 +19,7 @@
             _setup: function( options ){
                 var img = document.createElement('img');
 
-                img.class = 'popcorn-plugin-image';
+                img['class'] = 'popcorn-plugin-image';
                 img.style.display = 'none';
                 img.src = options.src;
                 options._img = img;
