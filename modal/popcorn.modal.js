@@ -48,6 +48,10 @@
                 }
             },
             _setup: function( options ){
+                options.toString = function() {
+                    return 'Modal: ' + options.text;
+                }
+
                 options._seen = false;
 
                 options._mask = document.createElement('div');
