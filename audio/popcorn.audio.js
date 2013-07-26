@@ -79,7 +79,7 @@
              * @param {Object} options
              * @todo
              */
-            _tearDown: function( options ){
+            _teardown: function( options ){
 
             }
        }

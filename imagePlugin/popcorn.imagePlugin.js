@@ -31,7 +31,7 @@
             end: function( event, options ){
                 options._img.style.display = 'none';
             },
-            _tearDown: function( options ){
+            _teardown: function( options ){
                 options._p.parentNode.removeChild(options._img);
             }
        };

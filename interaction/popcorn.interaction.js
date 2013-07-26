@@ -43,7 +43,7 @@
             end: function( event, options ){
                 options._el.style.display = 'none';
             },
-            _tearDown: function( options ){
+            _teardown: function( options ){
                 options._el.parentNode.removeChild(options._el);
             }
        }

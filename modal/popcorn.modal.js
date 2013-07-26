@@ -121,7 +121,7 @@
             end: function( event, options ){
                 // do nothing
             },
-            _tearDown: function( options ){
+            _teardown: function( options ){
                 document.body.removeChild(options._mask);
                 document.body.removeChild(options._container);
                 window.removeEventListener('resize', options._reposition);
