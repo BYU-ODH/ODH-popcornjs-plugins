@@ -40,7 +40,12 @@
                Popcorn.dom.find(options.target).appendChild(el);
 
                Popcorn.getJSONP( url, function populateData( data ) {
-                   if(options._el) { // does the element still exist? If not, don't do anything
+                   if(data.error){
+                       el.removeChild(txt);
+                       error_txt = document.createTextNode('Freebase responded with an error: ' + data.error.code + ' - ' + data.error.message);
+                       el.appendChild(error_txt);
+                   }
+                   if(options._el && data.property) { // does the element still exist? If not, don't do anything
                        el.removeChild(txt);
                        var container = document.createElement('div');
                        container.className = 'freebase-note';
