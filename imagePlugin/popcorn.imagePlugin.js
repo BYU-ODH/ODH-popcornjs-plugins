@@ -32,7 +32,7 @@
                 options._img.style.display = 'none';
             },
             _teardown: function( options ){
-                options._p.parentNode.removeChild(options._img);
+                document.getElementById(options.target).removeChild(options._img);
             }
        };
    })());
