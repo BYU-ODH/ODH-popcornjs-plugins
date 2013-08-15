@@ -19,23 +19,6 @@
 (function (Popcorn) {
    Popcorn.plugin( "skip", (function(){
        
-       /**
-        * Jumps ahead to a specified time.
-        * This is specified as a separate function for ease-of-use with binding
-        * and unbinding.
-        */
-       function skip( options ) {
-           var pop = options._pop;
-
-           // this was added because of an issue with Youtube where this would be called multiple times
-           // this prevents the skip method from being called if the player is not within the skipped time
-           if( pop.currentTime() >= options.end || pop.currentTime() < options.start) {
-                pop.off('timeupdate', function() { skip( options ); } );
-                return;
-           }
-           options._pop.currentTime(options.end);
-       }
-       
        return {
             // Define a manifest for the butter authoring tool to use
             manifest: {
@@ -53,34 +36,34 @@
                 }
             },
             _setup: function( options ){
-                options._pop = this;
+                var pop = this;
+                options._skip = function() {
+                    var ct = pop.currentTime();
+                    if (ct >= options.end || ct < options.start) {
+                        return;
+                    }
+                    pop.currentTime(options.end);
+                };
+                
+                pop.on( "timeupdate", options._skip );
             },
-            /**
-             * Skips to the end and set a timeupdate listener to skip to the end if
-             * someone is seeking
-             */
+
             start: function( event, options ){
-                skip(options);
-                this.on('timeupdate',function(){
-                    skip(options)
-                });
             },
-            /**
-             * Unbinds timeupdate listener
-             */
+
             end: function( event, options ){
-                this.off('timeupdate',function(){
-                    skip(options)
-                });
             },
+
+            toString: function(){
+                return "Skip";
+            },
+                    
             /**
              * Takes care of any cleanup if this plugin is removed, namely unbinding
              * the timeupdate listener
              */
-            _tearDown: function( options ){
-                this.off('timeupdate',function(){
-                    skip(options)
-                });
+            _teardown: function( options ){
+                this.off('timeupdate', options._skip ); // cf. this.on, where we have to pass the actual function
             }
        }
    })());

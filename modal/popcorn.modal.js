@@ -48,6 +48,10 @@
                 }
             },
             _setup: function( options ){
+                options.toString = function() {
+                    return 'Modal: ' + options.text;
+                }
+
                 options._seen = false;
 
                 options._mask = document.createElement('div');
@@ -121,7 +125,7 @@
             end: function( event, options ){
                 // do nothing
             },
-            _tearDown: function( options ){
+            _teardown: function( options ){
                 document.body.removeChild(options._mask);
                 document.body.removeChild(options._container);
                 window.removeEventListener('resize', options._reposition);

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Popcorn YouTube Plug-in Demo</title>
+
+  <script src="../../popcorn.js"></script>
+  <script src="popcorn.youtube.js"></script>
+  <script>
+    document.addEventListener( "DOMContentLoaded", function () {
+
+      window.p_skip = Popcorn( "#video" )
+      .play()
+      ['youtube-search']({
+        start: 2.5,
+        end: 5,
+        item: 'snuggie',
+        target: 'onedayhamsterswillruletheworldimnotevenjoking',
+        key: 'AIzaSyBOBtBbB_G5M8ys6mCnyV6kLpnAd_scyKk'
+      })
+      ['youtube-search']({
+        start: 8,
+        end: 14,
+        item: 'slanket',
+        target: 'onedayhamsterswillruletheworldimnotevenjoking',
+        key: 'AIzaSyBOBtBbB_G5M8ys6mCnyV6kLpnAd_scyKk'
+      });
+    });
+  </script>
+</head>
+<body>
+    <p>
+        This displays the results of a YouTube search for "snuggie" from 2.5 to 5 seconds and for "slanket" between 8 and 14 seconds. 
+    </p>
+  <div>
+    <video id="video"
+      controls 
+      width="350px"
+      poster="../../test/poster.png">
+
+      <source id="mp4"
+        src="../../test/trailer.mp4"
+        type='video/mp4; codecs="avc1, mp4a"'>
+
+      <source id="ogv"
+        src="../../test/trailer.ogv"
+        type='video/ogg; codecs="theora, vorbis"'>
+
+      <p>Your user agent does not support the HTML5 Video element.</p>
+
+    </video>
+  </div>
+  <div id="onedayhamsterswillruletheworldimnotevenjoking"></div>
+</body>
+</html>
