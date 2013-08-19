@@ -15,7 +15,8 @@ test( "Popcorn Reference Plugin", function() {
   };
   
   var popped = Popcorn( "#video" ),
-      expects = 8,
+      target = "annotation",
+      expects = 7,
       ref1start = 3,
       ref1end = 5,
       ref2start = 4,
@@ -33,8 +34,7 @@ test( "Popcorn Reference Plugin", function() {
     end: ref1end,
     item: "foo",
     text: "bar",
-    list: "list",
-    target: "annotation",
+    target: target,
     hide: false
   })
   .reference({
@@ -42,8 +42,7 @@ test( "Popcorn Reference Plugin", function() {
     end: ref2end,
     item: "spam",
     text: "eggs",
-    list: "list",
-    target: "annotation",
+    target: target,
     hide: true
   })
   .reference({
@@ -51,28 +50,25 @@ test( "Popcorn Reference Plugin", function() {
     end: ref3end,
     item: "spam2",
     text: "eggs2",
-    list: "list",
-    target: "annotation",
+    target: target,
     hide: true
   });
   
   // empty track events should be safe
   Popcorn.plugin.debug = true;
   
-  var list = document.getElementById("list").childNodes[0],
-      annotations = document.getElementById("annotation"),
-      normalAnnot = annotations.childNodes[0],
-      hideAnnot = annotations.childNodes[1],
-      hideAnnot2 = annotations.childNodes[2];
+  var list = document.getElementById(target).childNodes[0],
+      normalAnnot = list.childNodes[0],
+      hideAnnot = list.childNodes[1],
+      hideAnnot2 = list.childNodes[2];
   
   equal(list.childNodes.length, referenceCnt, "Our list contains " + referenceCnt + " items");
-  equal(annotations.childNodes.length, referenceCnt, "Our annotations on the page equal " + referenceCnt);
   equal(normalAnnot.style.display,"none","Our annotations are not displayed before their time");
   
   stop();
   
   popped.cue(ref1start, function(){
-     equal(normalAnnot.style.display,"block","non-hidden annotations are seen between 'start' and 'end'");
+     equal(normalAnnot.style.display,"","non-hidden annotations are seen between 'start' and 'end'");
   });
   
   popped.cue(ref1end, function(){
@@ -84,7 +80,7 @@ test( "Popcorn Reference Plugin", function() {
       // send click to 'hidden' annotation
       sendClick(list.childNodes[2].childNodes[0]);
       setTimeout(function(){
-          equal(hideAnnot2.style.display,"block","Hidden annotation visible after click");
+          equal(hideAnnot2.style.display,"","Hidden annotation visible after click");
       });
   });
 

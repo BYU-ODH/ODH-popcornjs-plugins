@@ -25,14 +25,13 @@
  *      item: 'chinchilla',
  *      text: 'a small furry animal',
  *      hide: false,
- *      list: 'vocab-list',
  *      target: 'annotation-box'
  * })
  */
 (function (Popcorn) {
    Popcorn.plugin( "reference", (function(){
 
-       function arrangeChildrenByTime(parentEl) {
+       function arrangeChildrenByTime( parentEl ) {
            if(parentEl.children.length <= 1) {
                return;
            }
@@ -53,6 +52,19 @@
        };
         
        var _uls = {}; // a collection of our keyed-by-target unordered lists
+       var _clicked = false;
+
+       function isMostRecentClick( element ) {
+           return _clicked === element;
+       }
+
+       function setClick( element ) {
+           _clicked = element;
+       }
+
+       function removeClick() {
+           _clicked = false;
+       }
        
        return {
            // Define a manifest for the butter authoring tool to use
@@ -77,55 +89,48 @@
             * Creates our li element as well as our annotation div and places them in the DOM
             */
            _setup: function( options ){
-               var pop = this;
-               options._pause = false;
-               options._clicked = false;
-               var _target = Popcorn.dom.find(options.target);
+               var pop = this,
+                   _target = Popcorn.dom.find(options.target);
                options._target = _target;
                
-               if(!_uls[options.target]) {
-                   _uls[options.target] = document.createElement('ul');
-                   _target.appendChild(_uls[options.target]);
+               if(!_uls[_target]) {
+                   _uls[_target] = document.createElement('ul');
+                   _target.appendChild(_uls[_target]);
                }
-               options._ul = _uls[options.target];
+               options._ul = _uls[_target];
                
                // create a link that takes us directly to the vocabulary's start
-               var a = document.createElement("a");
-               var text = document.createTextNode(options.item);
-               a.appendChild(text);
-               a.setAttribute('href','#');
-               a.addEventListener('click',function(ev){
-                  ev.preventDefault();
-                  // tells us that we will want to pause when this is complete
-                  /**
-                   * @TODO: Need to handle what happens when multiple links are clicked in succession
-                   */
-                  options._pause = true;
-                  options._clicked = true;
-                  pop.currentTime(options.start);
-                  pop.play();
-               });
+               var a = document.createElement("a"),
+                   text = document.createTextNode(options.item);
+                   
+                   a.appendChild(text);
+                   a.setAttribute('href','#');
+                   a.addEventListener('click',function jumpToTime(ev){
+                      ev.preventDefault();
+                      setClick(a);
+                      pop.play(); // play needs to come BEFORE currentTime. It won't work if it comes after.
+                      pop.currentTime(options.start);
+                   });
+                   options._link = a;
                
                options._container = document.createElement( "div" );
-               options._container.innerHTML = "<dfn>" + options.item + "</dfn> " + (options.text || '');
-               options._container.style.display = "none";
-               options._target.appendChild(options._container);
+                   options._container.innerHTML = "<dfn>" + options.item + "</dfn> " + (options.text || '');
+                   options._container.style.display = "none";
+                   options._target.appendChild(options._container);
                
-               var ul = options._ul;
                options._li = document.createElement( "li" );
-               options._li.setAttribute('data-popcorn-reference-start',options.start);
-               options._li.appendChild(a);
-               ul.appendChild(options._li);
+                   options._li.setAttribute('data-popcorn-reference-start', options.start);
+                   options._li.appendChild(a);
+                   options._ul.appendChild(options._li);
                
-               arrangeChildrenByTime(ul);
+               arrangeChildrenByTime(options._ul);
            },
            /**
             * Display the element
             * (if it has been clicked or is not automatically hidden)
             */
            start: function( event, options ){
-               if(!options.hide || options._clicked) {
-                    options._clicked = false;
+               if( !options.hide || isMostRecentClick(options._link) ) {
                     options._container.style.display = "";
                }
            },
@@ -135,8 +140,8 @@
             */
            end: function( event, options ){
                // this will be set when we click on a vocab link
-               if(options._pause) {
-                   options._pause = false;
+               if(isMostRecentClick(options._link)) {
+                   removeClick();
                    this.pause();
                }
                options._container.style.display = "none";
@@ -145,19 +150,18 @@
             * Remove elements from the DOM
             */
            _teardown: function( options ){
-                var ul = options._ul;
-                
-                if(ul) {
-                    ul.removeChild(options._li);
-                    
-                    if(!ul.children.length) {
-                        Popcorn.dom.find(options.target).removeChild(ul);
-                        delete _uls[options.target];
-                    }
-                }
-                if(options._target) {
-                    options._target.removeChild(options._container);
-                }
+               ul = options._ul;
+               if(ul) {
+                   ul.removeChild(options._li);
+                   
+                   if(!ul.children.length) {
+                       options._target.removeChild(options._ul);
+                       delete _uls[options.target];
+                   }
+               }
+               if(options._target) {
+                   options._target.removeChild(options._container);
+               }
            }
       };
    })());
