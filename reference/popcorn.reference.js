@@ -156,7 +156,7 @@
                    
                    if(!ul.children.length) {
                        options._target.removeChild(options._ul);
-                       delete _uls[options.target];
+                       delete _uls[options._target];
                    }
                }
                if(options._target) {
