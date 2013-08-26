@@ -36,7 +36,10 @@
            _setup: function( options ) {
                options.results = options.results || defaultVideoCount;
 
-               var url = api + '?maxResults=' + options.results + '&part=snippet&q=' + options.item,
+               var encItem = encodeURIComponent(options.item),
+                   type    = "video";
+
+               var url = api + '?maxResults=' + options.results + '&part=snippet&type=' + type + '&q=' + encItem,
                    el = document.createElement('div'),
                    txt = document.createTextNode('Loading...'),
                    pop = this;
