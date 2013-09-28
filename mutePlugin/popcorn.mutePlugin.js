@@ -12,9 +12,12 @@
        },
        _setup: function(options){
         options.muteOnChange = function(){
-            if(this.currentTime() > options.start && this.currentTime() < options.end){
-            this.mute();
-            }    
+            if(!this.muted()){
+                var time = this.currentTime();
+                if((time > options.start) && (time < options.end)) {
+                    this.mute();
+                }
+            }
         };
         this.on("volumechange", options.muteOnChange);
        },
