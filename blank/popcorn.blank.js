@@ -26,11 +26,20 @@
             },
 
             start: function( event, options ){
-                this.video.className += ' popcorn-plugin-blank';
+                this.media.className += ' popcorn-plugin-blank';
+
+                // if this is not a video, we can't guarantee it will work. Just hide it.
+                if(this.media.tagName != "VIDEO") {
+                    this.media.style.display = 'none';
+                }
             },
 
             end: function( event, options ){
-                this.video.className = this.video.className.replace( /\bpopcorn-plugin-blank\b/g, '');
+                this.media.className = this.media.className.replace( /\bpopcorn-plugin-blank\b/g, '');
+
+                if(this.media.tagName != "VIDEO") {
+                    this.media.style.display = '';
+                }
             },
 
             toString: function(){
