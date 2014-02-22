@@ -70,10 +70,6 @@
             end: function( event, options ){
             },
 
-            toString: function(){
-                return "Skip";
-            },
-                    
             /**
              * Takes care of any cleanup if this plugin is removed, namely unbinding
              * the timeupdate listener

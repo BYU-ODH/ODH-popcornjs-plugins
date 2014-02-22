@@ -41,10 +41,6 @@
                     this.media.style.display = '';
                 }
             },
-
-            toString: function(){
-                return "Blank";
-            },
                     
             _teardown: function( options ){
             }

@@ -86,6 +86,9 @@
       },
 
       _setup: function( options ) {
+        options.toString = function() {
+          return options.text;
+        };
         var newdiv = document.createElement( "div" );
 
         newdiv.id = "subtitle-" + i++;
@@ -136,7 +139,6 @@
       _teardown: function ( options ) {
         options.container.removeChild( options.innerContainer );
       }
-
   });
 
 })( Popcorn );
