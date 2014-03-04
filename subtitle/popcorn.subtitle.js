@@ -1,4 +1,13 @@
-// PLUGIN: Subtitle
+/**
+ * NB: This is a copy of Scott Downe's Subtitle Plugin that has been modified
+ * for the following purposes
+ * 
+ * 1. To cause overlapping subtitle tracks to be displayed on top of each
+ *    other, instead of inline
+ *
+ * 2. To add a toString() method to the options object, for improved clarity
+ *    when editing subtitles in Butter
+ */
 
 (function ( Popcorn ) {
 
@@ -122,7 +131,7 @@
        * options variable
        */
       start: function( event, options ){
-        options.innerContainer.style.display = "inline";
+        options.innerContainer.style.display = "block";
         options.showSubtitle( options, options.text );
       },
       /**
