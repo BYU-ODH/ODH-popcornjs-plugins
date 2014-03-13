@@ -30,6 +30,7 @@
         };
 
         ctxContainer.id = id || Popcorn.guid();
+        style.zIndex = 2147483647; // just enough to display on full-screen
         style.position = "absolute";
         style.color = "white";
         style.textShadow = "black 2px 2px 6px";
