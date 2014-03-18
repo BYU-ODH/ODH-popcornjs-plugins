@@ -1,6 +1,6 @@
 (function (Popcorn) {
    Popcorn.plugin( "blank", (function(){
-       var css    = '.popcorn-plugin-blank { visibility: hidden; } video.popcorn-plugin-blank::-webkit-media-controls { visibility: visible; border: solid white 1px; box-shadow: 0px 0px 2px 2px black; background-color: black; } video.popcorn-plugin-blank::-webkit-media-controls:before { color: white; content: "Content customized for BYU"; font-weight: bold; }',
+       var css    = '.popcorn-plugin-blank { visibility: hidden; } video.popcorn-plugin-blank::-webkit-media-controls { visibility: visible; outline: solid white 1px; box-shadow: 0px 0px 2px 2px black; background-color: black; } video.popcorn-plugin-blank::-webkit-media-controls:before { color: white; content: "Content customized for BYU"; font-weight: bold; }',
            style  = document.createElement('style');
 
        style.innerHTML = css;
