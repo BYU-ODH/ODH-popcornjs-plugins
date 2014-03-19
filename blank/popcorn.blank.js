@@ -35,10 +35,23 @@
             },
 
             end: function( event, options ){
-                this.media.className = this.media.className.replace( /\bpopcorn-plugin-blank\b/g, '');
+                var media = this.media;
 
-                if(this.media.tagName != "VIDEO") {
-                    this.media.style.display = '';
+                var show = function() {
+                  media.className = media.className.replace( /\bpopcorn-plugin-blank\b/g, '');
+
+                  if(media.tagName != "VIDEO") {
+                      media.style.display = '';
+                  }
+                  media.removeEventListener('canplay', show);
+                }
+
+                if(media.tagName == 'VIDEO' && media.readyState != media.HAVE_ENOUGH_DATA) {
+                    media.addEventListener('canplay', show);
+                }
+                else
+                {
+                  show();
                 }
             },
                     
