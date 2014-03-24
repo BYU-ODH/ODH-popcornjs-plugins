@@ -37,7 +37,9 @@
             },
             _setup: function( options ){
                 var pop             = this,
-                    hasDisabledList = ( (pop.data && pop.data.disabled) !== undefined );
+                    hasDisabledList = ( (pop.data && pop.data.disabled) !== undefined ),
+                    stutterTimeout  = null,
+                    isYouTube       = pop.media.tagName != "VIDEO"; // not foolproof, but it'll do
 
                 options._skip = function() {
 
@@ -59,6 +61,15 @@
                         return;
                     }
                     pop.currentTime(options.end);
+ 
+                    if( isYouTube ) {
+                        stutterTimeout = setTimeout(function(){
+                            pop.pause();
+                            setTimeout(function(){
+                                pop.play();
+                            }); 
+                        }, 500)
+                    }
                 };
                 
                 pop.on( "timeupdate", options._skip );
