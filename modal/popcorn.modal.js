@@ -56,44 +56,38 @@
 
                 options._mask = document.createElement('div');
                 options._mask.className = 'popcorn-modal-mask';
-                with(options._mask.style) {
-                        zIndex = 1000;
-                        width = '100%';
-                        height = '100%';
-                        opacity = 0.5;
-                        position = 'fixed';
-                        top = 0;
-                        left = 0;
-                        backgroundColor = "#000";
-                        display = 'none';
-                }
+                options._mask.style.options._mask.style.zIndex = 1000;
+                options._mask.style.width = '100%';
+                options._mask.style.height = '100%';
+                options._mask.style.opacity = 0.5;
+                options._mask.style.position = 'fixed';
+                options._mask.style.top = 0;
+                options._mask.style.left = 0;
+                options._mask.style.backgroundColor = "#000";
+                options._mask.style.display = 'none';
 
                 document.body.appendChild(options._mask);
 
                 var container = document.createElement('div');
                 container.className = 'popcorn-modal-holder';
-                with(container.style) {
-                        padding = '10px';
-                        zIndex = 1001;
-                        backgroundColor = '#FFF';
-                        position = 'fixed';
-                        display = 'none';
-                        padding = '10px';
-                        boxShadow = '3px 3px black';
-                }
+                container.style.padding = '10px';
+                container.style.zIndex = 1001;
+                container.style.backgroundColor = '#FFF';
+                container.style.position = 'fixed';
+                container.style.display = 'none';
+                container.style.padding = '10px';
+                container.style.boxShadow = '3px 3px black';
                 
                 var exit = document.createElement('div');
                 
                 exit.className = 'popcorn-modal-close';
                 exit.innerHTML = 'x';
-                with(exit.style) {
-                    display = 'block';
-                    cursor = 'pointer';
-                    textAlign = 'right';
-                    margin = '0px 0px 10px 0px';
-                    top = 0;
-                    right = 0;
-                }
+                exit.style.display = 'block';
+                exit.style.cursor = 'pointer';
+                exit.style.textAlign = 'right';
+                exit.style.margin = '0px 0px 10px 0px';
+                exit.style.top = 0;
+                exit.style.right = 0;
                 
                 var text = document.createElement('div');
                 text.className = 'popcorn-modal-contents';
