@@ -40,6 +40,11 @@
           return this.start;
         }
       });
+      Object.defineProperty(proto, "endTime", {
+        get: function getEndTime() {
+          return this.end;
+        }
+      });
      
       // only return subtitle plugin tracks 
       return popcorn.getTrackEvents().filter(function isSubtitle(ev) {
@@ -50,9 +55,9 @@
     /**
      * Returns an array-like object of text cue objects in this format:
      * { 
-     *   0: {startTime: SECONDS.MILLISECONDS, text: TEXT_OF_CUE},
+     *   0: {startTime: SECONDS.MILLISECONDS, endTime: SECONDS.MILLISECONDS, text: TEXT_OF_CUE},
      *   …
-     *   n: {startTime: SECONDS.MILLISECONDS, text: TEXT_OF_CUE},
+     *   n: {startTime: SECONDS.MILLISECONDS, endTime: SECONDS.MILLISECONDS, text: TEXT_OF_CUE},
      *   length: n
      * ] 
      */
@@ -63,19 +68,43 @@
       return _getCuesFromPopcorn( popcorn );
     }
 
-    return {
-      _setup: function( options ) {
-        var cues = getCues( this ),
-            list = document.createElement('ol');
-        
+    /**
+     * Given a certain time, scrolls down to the relevant position in the
+     * given list
+     */
+    function scrollToTime( list, time ) {
+
+    }
+
+    function buildListFromCues( cues ) {
+        list = document.createElement('ol'),
         for( var i = 0; i<cues.length; i++) {
-          var item = document.createElement('li');
-          var text = document.createTextNode(cues.text);
+          var item = document.createElement('li'),
+              text = document.createTextNode(cues[i].text);
           item.appendChild(text);
+          item.dataset = {cue: cues[i]}
           list.appendChild(item);
         }
+    }
+
+    return {
+      
+      _setup: function( options ) {
+        var cues       = getCues( this ),
+            autoScroll = true,
+            lastTime = null,
+            list = buildListFromCues( cues );
+
+        this.on('timeupdate', function(){
+          if(!autoscroll || lastTime === this.currentTime) {
+            return;
+          }
+          scrollToTime(list, this.currentTime);
+        });
+        
         Popcorn.dom.find(options.target).appendChild(list);
       },
+
       start: function( options ) { },
       end: function( options ) { },
        _teardown: function( options ) {}
