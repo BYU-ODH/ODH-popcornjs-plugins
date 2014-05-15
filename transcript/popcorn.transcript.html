@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Popcorn Blank Segment Plug-in Demo</title>
+
+  <script src="../../popcorn.js"></script>
+  <script src="popcorn.transcript.js"></script>
+  <script>
+    document.addEventListener( "DOMContentLoaded", function () {
+
+      window.p_skip = Popcorn( "#video" )
+      .play()
+      .transcript({
+        srcLang: 'es',
+        destLang: 'en',
+        target: 'target'
+      });
+    });
+  </script>
+  <style>
+
+  </style>
+</head>
+<body>
+    <p>
+        Should show a scrolling transcript
+    </p>
+  <div>
+    <video id="video"
+      controls 
+      width="350px"
+      poster="../../test/poster.png">
+
+      <source id="mp4"
+        src="../../test/trailer.mp4"
+        type='video/mp4; codecs="avc1, mp4a"'>
+
+      <source id="ogv"
+        src="../../test/trailer.ogv"
+        type='video/ogg; codecs="theora, vorbis"'>
+
+      <p>Your user agent does not support the HTML5 Video element.</p>
+      <track src=santa.vtt default kind=subtitles srclang=es label=Spanish />
+
+    </video>
+  </div>
+  <div id="target"></div>
+</body>
+</html>

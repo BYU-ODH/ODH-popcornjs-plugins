@@ -214,15 +214,15 @@
             phrase     = document.createElement('dt'),
             defList    = document.createElement('dl'),
             lastTime   = null,
-            autoScroll = true;
+            autoscroll = true;
 
 
         defList.classList.add(CLASS_PREFIX + 'definition');
         defList.appendChild(phrase);
 
         function define( text, success, error ) {
-          var request = new XMLHttpRequest(),
-              qstr = 'lookup?srcLang=' options.srcLang + '&destLang=' +
+          var request = new XMLHttpRequest();
+          var qstr = 'lookup?srcLang=' + options.srcLang + '&destLang=' +
                 options.destLang + '&word=' + text;
 
           request.open('GET', options.api + encodeURI(qstr));
