@@ -1,5 +1,7 @@
 /**
  * TODO: rewrite DOM creation methods to HTML string
+ * TODO: this currently has to run AFTER the text tracks have loaded. Maybe just
+ * run the Popcorn VTT parser instead of trying to use native tracks
  *
  * Options:
  *  target: Where to place the transcript
@@ -263,6 +265,9 @@
           });
         });
 
+        /**
+         * TODO: for native cues, use TextTrack.oncuechange
+         */
         this.on('timeupdate', function(){
           if(!autoscroll || lastTime === this.currentTime) {
             return;
