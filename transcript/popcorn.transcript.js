@@ -138,17 +138,31 @@
 
     /**
      * Given a certain time, scrolls down to the relevant position in the
-     * given list
+     * given list.
+     *
+     * @param list the element containing cue items
+     * @param time the time to mark cues with
+     * @param scroll whether or not to scroll
      */
-    function scrollToTime( list, time ) {
+    function markActiveTime( list, time, scroll ) {
+      var hasScrolled = false;
+
       for(var i=0; i<list.childNodes.length; i++) {
         var item = list.childNodes[i],
             cue = item.cue;
 
         if(time >= cue.startTime && time <= cue.endTime) {
           var offset = item.offsetTop;
-          scrollElement( list, item.offsetTop, SCROLL_STEP, SCROLL_INTERVAL );
-          return;
+          item.classList.add('active');
+          
+          if(scroll && !hasScrolled) {
+            hasScrolled = true; // if there are overlapping tracks, don't scroll past the first one
+            scrollElement( list, item.offsetTop, SCROLL_STEP, SCROLL_INTERVAL );
+          }
+        }
+        else
+        {
+          item.classList.remove('active');
         }
       }
     };
@@ -232,7 +246,6 @@
             list       = buildListFromCues( cues ),
             phrase     = document.createElement('dt'),
             defList    = document.createElement('dl'),
-            lastTime   = null,
             autoscroll = true,
             that       = this;
 
@@ -288,12 +301,7 @@
          * TODO: for native cues, use TextTrack.oncuechange
          */
         this.on('timeupdate', function(){
-          if(!autoscroll || lastTime === that.currentTime()) {
-            return;
-          }
-
-          lastTime = that.currentTime();
-          scrollToTime(list, that.currentTime());
+          markActiveTime(list, that.currentTime(), autoscroll);
         });
 
         var fragment = document.createDocumentFragment();

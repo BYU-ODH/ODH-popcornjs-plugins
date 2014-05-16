@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Popcorn Blank Segment Plug-in Demo</title>
+  <title>Popcorn Transcript Demo</title>
 
   <script src="../../popcorn.js"></script>
   <script src="../subtitle/popcorn.subtitle.js"></script>
@@ -15,6 +15,7 @@
       window.pop = Popcorn( "#video" )
       .play()
       .transcript({
+        api: 'http://example.com/api/v1/', // TODO - put live API here
         srcLang: 'es',
         destLang: 'en',
         target: 'target'
@@ -22,7 +23,28 @@
     });
   </script>
   <style>
-
+    .popcorn-transcript-cuelist {
+      height: 55px;
+      position: relative;
+      overflow-y: scroll;
+      width: 450px;
+    }
+    .popcorn-transcript-cuelist {
+      padding-left: 0;
+      list-style: none;
+    }
+    .popcorn-transcript-cue q {
+      border-radius: 4px;
+    }
+    .popcorn-transcript-cue q::before {
+      content: none;
+    }
+    .popcorn-transcript-cue q::after {
+      content: none;
+    }
+    .popcorn-transcript-cue.active q {
+      background-color: rgba(33, 132, 174, 0.5);
+    }
   </style>
 </head>
 <body>
