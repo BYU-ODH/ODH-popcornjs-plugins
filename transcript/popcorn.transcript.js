@@ -165,6 +165,8 @@
               jump  = document.createElement('button'),
               quote = document.createElement('q');
 
+          jump.setAttribute('unselectable', 'on');
+          jump.setAttribute('style', '-moz-user-select: none; -webkit-user-select: none; -ms-user-select: none; user-select: none');
           jump.classList.add(CLASS_PREFIX + 'jump');
           jump.innerText = 'Go';
           item.classList.add(CLASS_PREFIX + 'cue');
@@ -262,6 +264,7 @@
               success(data);
             }
           };
+          request.send();
         };
 
         list.addEventListener(JUMP_EVENT, function handleJump(e) {
@@ -274,7 +277,7 @@
 
           define(e.detail, function success( data ) {
             phrase.innerText = e.detail;
-            addDefinitions( data.entries );
+            addDefinitions( defList, data.entries );
           }, function error( data ) {
             phrase.innerText = 'ERROR';
           });
