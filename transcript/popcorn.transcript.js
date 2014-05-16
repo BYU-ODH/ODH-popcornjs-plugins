@@ -39,7 +39,7 @@
         JUMP_EVENT        = 'CueJumpClicked',
         SELECT_EVENT      = 'TextSelected',
         SCROLL_INTERVAL   = 50, // lower is faster
-        SCROLL_STEP       = 2;  // higher is faster, lower is smoother
+        SCROLL_STEP       = 5;  // higher is faster, lower is smoother
 
     /**
      * Helper function for getCues, for use when there are native subtitles
@@ -145,7 +145,7 @@
         var item = list.childNodes[i],
             cue = item.cue;
 
-        if(time >= cue.startTime && time <= cue.startTime) {
+        if(time >= cue.startTime && time <= cue.endTime) {
           var offset = item.offsetTop;
           scrollElement( list, item.offsetTop, SCROLL_STEP, SCROLL_INTERVAL );
           return;
@@ -176,6 +176,7 @@
           item.appendChild(quote);
           item.cue = cues[i];
           list.appendChild(item);
+          list.setAttribute('style', 'position: relative');
 
           // the IIFE is crucial, because otherwise the event listeners'
           // closures reference incorrect items
@@ -287,11 +288,12 @@
          * TODO: for native cues, use TextTrack.oncuechange
          */
         this.on('timeupdate', function(){
-          if(!autoscroll || lastTime === that.currentTime) {
+          if(!autoscroll || lastTime === that.currentTime()) {
             return;
           }
 
-          scrollToTime(list, that.currentTime);
+          lastTime = that.currentTime();
+          scrollToTime(list, that.currentTime());
         });
 
         var fragment = document.createDocumentFragment();
