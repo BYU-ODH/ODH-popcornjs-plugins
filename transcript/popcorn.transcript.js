@@ -3,6 +3,21 @@
  * TODO: this currently has to run AFTER the text tracks have loaded. Maybe just
  * run the Popcorn VTT parser instead of trying to use native tracks
  *
+ * Available languages (per ARCLITE)
+ *
+ * English  French(fr)
+ * English  German (de)
+ * English  Italian(it)
+ * English  Spanish(es)
+ * English  Dutch (nl)
+ * English  Chinese (zh)
+ * English  Hebrew (he)
+ * English  Portuguese(pt)
+ * English  Swedish(sv)
+ * English  Russian(ru)
+ * English  Japanese (ja)
+ * English  Korean (ko)
+ *
  * Options:
  *  target: Where to place the transcript
  *  api: The location of the dictionary API (see https://github.com/BYU-ARCLITE/DictionaryLookup),
@@ -24,10 +39,7 @@
         JUMP_EVENT        = 'CueJumpClicked',
         SELECT_EVENT      = 'TextSelected',
         SCROLL_INTERVAL   = 50, // lower is faster
-        SCROLL_STEP       = 2,  // higher is faster, lower is smoother
-        // the magnitude of difference between Popcorn's time codes and native HTML5 video
-        // i.e., HTML5 video is in milliseconds; Popcorn is in seconds.
-        POPCORN_MAGNITUDE = 1000; 
+        SCROLL_STEP       = 2;  // higher is faster, lower is smoother
 
     /**
      * Helper function for getCues, for use when there are native subtitles
@@ -64,13 +76,13 @@
       // this allows startTime to reference start.
       Object.defineProperty(proto, "startTime", {
         get: function getStartTime() {
-          return this.start*POPCORN_MAGNITUDE;
+          return this.start;
         }
       });
 
       Object.defineProperty(proto, "endTime", {
         get: function getEndTime() {
-          return this.end*POPCORN_MAGNITUDE;
+          return this.end;
         }
 
       });
@@ -149,7 +161,6 @@
         list.classList.add(CLASS_PREFIX + 'cuelist');
 
         for( var i = 0; i<cues.length; i++) {
-          
           var item  = document.createElement('li'),
               jump  = document.createElement('button'),
               quote = document.createElement('q');
@@ -164,28 +175,32 @@
           item.cue = cues[i];
           list.appendChild(item);
 
-          jump.addEventListener('click', function jumpClicked() {
-            
-            var e     = document.createEvent('CustomEvent');
-            e.initCustomEvent(JUMP_EVENT, true, true, item.cue);
-            jump.dispatchEvent(e);
+          // the IIFE is crucial, because otherwise the event listeners'
+          // closures reference incorrect items
+          (function(jump, item){ 
+            jump.addEventListener('click', function jumpClicked() {
+              
+              var e     = document.createEvent('CustomEvent');
+              e.initCustomEvent(JUMP_EVENT, true, true, item.cue);
+              jump.dispatchEvent(e);
 
-          });
+            });
 
-          // TODO: Should we attach this on the list and not use a custom
-          // event?
-          quote.addEventListener('mouseup', function quoteClicked() {
-            var text = window.getSelection().toString();
+            // TODO: Should we attach this on the list and not use a custom
+            // event?
+            quote.addEventListener('mouseup', function quoteClicked() {
+              var text = window.getSelection().toString();
 
-            if(!text) {
-              return;
-            }
-            
-            var e     = document.createEvent('CustomEvent');
-            e.initCustomEvent(SELECT_EVENT, true, true, text);
-            jump.dispatchEvent(e);
-            
-          });
+              if(!text) {
+                return;
+              }
+              
+              var e     = document.createEvent('CustomEvent');
+              e.initCustomEvent(SELECT_EVENT, true, true, text);
+              jump.dispatchEvent(e);
+              
+            });
+          })(jump, item);
         }
         return list;
     };
@@ -250,12 +265,12 @@
         };
 
         list.addEventListener(JUMP_EVENT, function handleJump(e) {
-          that.currentTime(e.detail.startTime/POPCORN_MAGNITUDE);
+          that.currentTime(e.detail.startTime);
         });
 
         list.addEventListener(SELECT_EVENT, function handleSelect(e) {
           clearDefinitions( defList );
-          phrase.innerText = 'Loading…';
+          phrase.innerText = 'Loading...';
 
           define(e.detail, function success( data ) {
             phrase.innerText = e.detail;
