@@ -20,11 +20,14 @@
 (function (Popcorn) {
 
   Popcorn.plugin( "transcript", function() {
-    var CLASS_PREFIX    = 'popcorn-transcript-',
-        JUMP_EVENT      = 'CueJumpClicked',
-        SELECT_EVENT    = 'TextSelected',
-        SCROLL_INTERVAL = 50, // lower is faster
-        SCROLL_STEP     = 2;  // higher is faster, lower is smoother
+    var CLASS_PREFIX      = 'popcorn-transcript-',
+        JUMP_EVENT        = 'CueJumpClicked',
+        SELECT_EVENT      = 'TextSelected',
+        SCROLL_INTERVAL   = 50, // lower is faster
+        SCROLL_STEP       = 2,  // higher is faster, lower is smoother
+        // the magnitude of difference between Popcorn's time codes and native HTML5 video
+        // i.e., HTML5 video is in milliseconds; Popcorn is in seconds.
+        POPCORN_MAGNITUDE = 1000; 
 
     /**
      * Helper function for getCues, for use when there are native subtitles
@@ -61,13 +64,13 @@
       // this allows startTime to reference start.
       Object.defineProperty(proto, "startTime", {
         get: function getStartTime() {
-          return this.start;
+          return this.start*POPCORN_MAGNITUDE;
         }
       });
 
       Object.defineProperty(proto, "endTime", {
         get: function getEndTime() {
-          return this.end;
+          return this.end*POPCORN_MAGNITUDE;
         }
 
       });
@@ -128,7 +131,7 @@
     function scrollToTime( list, time ) {
       for(var i=0; i<list.childNodes.length; i++) {
         var item = list.childNodes[i],
-            cue = item.dataset.cue;
+            cue = item.cue;
 
         if(time >= cue.startTime && time <= cue.startTime) {
           var offset = item.offsetTop;
@@ -148,25 +151,23 @@
         for( var i = 0; i<cues.length; i++) {
           
           var item  = document.createElement('li'),
-              text  = document.createTextNode(cues[i].text),
               jump  = document.createElement('button'),
               quote = document.createElement('q');
 
           jump.classList.add(CLASS_PREFIX + 'jump');
+          jump.innerText = 'Go';
           item.classList.add(CLASS_PREFIX + 'cue');
-          quote.appendChild(text);
+          quote.innerHTML = cues[i].text;
 
           item.appendChild(jump);
           item.appendChild(quote);
-          item.dataset = {cue: cues[i]};
+          item.cue = cues[i];
           list.appendChild(item);
 
           jump.addEventListener('click', function jumpClicked() {
             
             var e     = document.createEvent('CustomEvent');
-            e.type    = JUMP_EVENT;
-            e.detail  = item.dataset;
-            e.bubbles = true;
+            e.initCustomEvent(JUMP_EVENT, true, true, item.cue);
             jump.dispatchEvent(e);
 
           });
@@ -181,9 +182,7 @@
             }
             
             var e     = document.createEvent('CustomEvent');
-            e.type    = SELECT_EVENT;
-            e.detail  = text;
-            e.bubbles = true;
+            e.initCustomEvent(SELECT_EVENT, true, true, text);
             jump.dispatchEvent(e);
             
           });
@@ -216,7 +215,8 @@
             phrase     = document.createElement('dt'),
             defList    = document.createElement('dl'),
             lastTime   = null,
-            autoscroll = true;
+            autoscroll = true,
+            that       = this;
 
 
         defList.classList.add(CLASS_PREFIX + 'definition');
@@ -250,7 +250,7 @@
         };
 
         list.addEventListener(JUMP_EVENT, function handleJump(e) {
-          this.currentTime = e.detail.startTime;
+          that.currentTime(e.detail.startTime/POPCORN_MAGNITUDE);
         });
 
         list.addEventListener(SELECT_EVENT, function handleSelect(e) {
@@ -269,11 +269,11 @@
          * TODO: for native cues, use TextTrack.oncuechange
          */
         this.on('timeupdate', function(){
-          if(!autoscroll || lastTime === this.currentTime) {
+          if(!autoscroll || lastTime === that.currentTime) {
             return;
           }
 
-          scrollToTime(list, this.currentTime);
+          scrollToTime(list, that.currentTime);
         });
 
         var fragment = document.createDocumentFragment();

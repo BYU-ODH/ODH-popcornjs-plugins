@@ -4,17 +4,21 @@
   <title>Popcorn Blank Segment Plug-in Demo</title>
 
   <script src="../../popcorn.js"></script>
+  <script src="../subtitle/popcorn.subtitle.js"></script>
+  <script src="../../modules/parser/popcorn.parser.js"></script>
+  <script src="../../parsers/parserVTT/popcorn.parserVTT.js"></script>
   <script src="popcorn.transcript.js"></script>
   <script>
     document.addEventListener( "DOMContentLoaded", function () {
 
-      window.p_skip = Popcorn( "#video" )
+      setTimeout(function(){
+      window.pop = Popcorn( "#video" )
       .play()
       .transcript({
         srcLang: 'es',
         destLang: 'en',
         target: 'target'
-      });
+        });}, 1000);
     });
   </script>
   <style>
