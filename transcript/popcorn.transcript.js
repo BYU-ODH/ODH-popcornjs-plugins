@@ -40,9 +40,10 @@
       SCROLL_STEP       = 5;  // higher is faster, lower is smoother
   
   Popcorn.plugin( "transcript", function() {
-    var defList = null,
-        list    = null,
-        events  = [];
+    var defList      = null,
+        list         = null,
+        popEvents    = [],
+        nativeEvents = []; 
 
     return {
       
@@ -53,6 +54,10 @@
             phrase     = document.createElement('dt'),
             autoscroll = true,
             that       = this;
+
+        addTrackListeners(this, cues, function handleCueChange(track, active) {
+          // TODO
+        });
 
         list    = buildListFromCues( cues );
         defList = document.createElement('dl');
@@ -127,7 +132,10 @@
 
         target.remove(defList);
         target.remove(list);
-        events.forEach(this.removeTrackEvent);
+        popEvents.forEach(this.removeTrackEvent);
+        nativeEvents.forEach(function removeTrackEvent(data) {
+          data.track.removeEventListener(data.type, data.e);
+        });
       }
     };
   });
@@ -331,16 +339,42 @@
 
   /**
    * Applies the callback function to the given cues
-   * @param cues An array-like object of either TextTracks or Popcorn TrackEvents
+   * @param pop the popcorn instance this applies to
+   * @param tracks An array-like object of either TextTracks or Popcorn TrackEvents
    * @param callback A function called when the track is turned on or off:
-   * @return An array of Popcorn events (if created) that should be deleted on teardown
+   * @return An object of events (if created) that should be deleted on teardown
    * Example:
-   *  addTrackListeners( [track1,track2,...,trackn], function handle(track, active) {
+   *  var result = addTrackListeners( [track1,track2,...,trackn], function handle(track, active) {
    *    // track is the track that caused the event
    *    // active states whether or not the track is being used
    *  });
+   *
+   *  contents of result: {popcornEvents: [...], nativeEvents: [{track: TrackEvent, e: Function, type: 'cuechange'}]}
    */
-  function addTrackListeners( cues, callback ) {
-    
+  function addTrackListeners( pop, tracks, callback ) {
+    if(!tracks.length) { return []; }
+    var isNative = cues[0] instanceof TextTrack;
+    var response = {popcornEvents: [], nativeEvents: []};
+    var pops = response.popcornEvents;
+    var nats = response.nativeEvents;
+
+    for(var i = 0; i<tracks.length; i++) {
+      var track = tracks[i];
+      (function attachEvent(track){
+        if(isNative) {
+          track.addEventListener('cuechange', function handleCueChange(){
+            callback(track, track.mode === 'showing');
+          });
+          nats.push({"track": track, "e": callback, "type": "cuechange"});
+        }
+        else
+        {
+          pops.push(pop.cue(track.startTime, function(){callback(track, true)}));
+          pops.push(pop.cue(track.endTime, function(){callback(track, false)}));
+        }
+      }(track));
+      return response;
+    }
   };
+
 })(Popcorn);
