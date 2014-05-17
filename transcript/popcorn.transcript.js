@@ -33,209 +33,16 @@
  *  });
  */
 (function (Popcorn) {
-
+  var CLASS_PREFIX      = 'popcorn-transcript-',
+      JUMP_EVENT        = 'CueJumpClicked',
+      SELECT_EVENT      = 'TextSelected',
+      SCROLL_INTERVAL   = 50, // lower is faster
+      SCROLL_STEP       = 5;  // higher is faster, lower is smoother
+  
   Popcorn.plugin( "transcript", function() {
-    var CLASS_PREFIX      = 'popcorn-transcript-',
-        JUMP_EVENT        = 'CueJumpClicked',
-        SELECT_EVENT      = 'TextSelected',
-        SCROLL_INTERVAL   = 50, // lower is faster
-        SCROLL_STEP       = 5;  // higher is faster, lower is smoother
-
-    /**
-     * Helper function for getCues, for use when there are native subtitles
-     */
-    function _getCuesFromVideo( video ) {
-      var track = null;
-
-      for(var i=0; i<video.textTracks.length && !track; i++) {
-        if( video.textTracks.item(i).mode === 'showing' ) {
-          track = video.textTracks.item(i);
-        }
-      }
-      if(!track) {
-        return [];
-      }
-
-      return track.cues;
-    };
-
-    /**
-     * Helper function for getCues, for use when there are Popcorn
-     * subtitles in play
-     */
-    function _getCuesFromPopcorn( popcorn ) {
-      if(!popcorn.getTrackEvents().length) {
-        return [];
-      }
-
-      var re     = new RegExp(/^\d{2}:\d{2}:\d{2}.\d{3} --> \d{2}:\d{2}:\d{2}.\d{3}$/),
-          proto  = popcorn.getTrackEvent(lastID).constructor.prototype,
-          lastID = popcorn.getLastTrackEventId();
-
-      // popcorn uses "start" instead of startTime.
-      // this allows startTime to reference start.
-      Object.defineProperty(proto, "startTime", {
-        get: function getStartTime() {
-          return this.start;
-        }
-      });
-
-      Object.defineProperty(proto, "endTime", {
-        get: function getEndTime() {
-          return this.end;
-        }
-
-      });
-     
-      // only return subtitle plugin tracks 
-      return popcorn.getTrackEvents().filter(function isSubtitle(ev) {
-        return re.test(ev.id);
-      });
-    };
-   
-    /**
-     * Returns an array-like object of text cue objects in this format:
-     * { 
-     *   0: {startTime: SECONDS.MILLISECONDS, endTime: SECONDS.MILLISECONDS, text: TEXT_OF_CUE},
-     *   …
-     *   n: {startTime: SECONDS.MILLISECONDS, endTime: SECONDS.MILLISECONDS, text: TEXT_OF_CUE},
-     *   length: n
-     * ] 
-     */
-    function getCues( popcorn ) {
-      
-      if(typeof popcorn.media.addTextTrack === 'function') {
-        return _getCuesFromVideo( popcorn.media );
-      }
-
-      return _getCuesFromPopcorn( popcorn );
-    };
-
-    /**
-     * Scrolls the given element to the given offset
-     * @param element the element to scroll
-     * @param offset the position to scroll to
-     * @param step how much to jump with each movement
-     * @param interval how many milliseconds in-between steps
-     */
-    function scrollElement( element, offset, step, interval) {
-      var interval = window.setInterval(function smoothScroll(){
-        var current = element.scrollTop;
-        if(current + step >= offset) {
-          element.scrollTop = offset;
-          window.clearInterval(interval);
-        }
-        else
-        {
-          element.scrollTop += SCROLL_STEP;
-        }
-        // the element apparently isn't scrolling. abort! abort!
-        if(element.scrollTop === current) {
-          window.clearInterval(interval);
-        }
-      }, interval);
-    };
-
-    /**
-     * Given a certain time, scrolls down to the relevant position in the
-     * given list.
-     *
-     * @param list the element containing cue items
-     * @param time the time to mark cues with
-     * @param scroll whether or not to scroll
-     */
-    function markActiveTime( list, time, scroll ) {
-      var hasScrolled = false;
-
-      for(var i=0; i<list.childNodes.length; i++) {
-        var item = list.childNodes[i],
-            cue = item.cue;
-
-        if(time >= cue.startTime && time <= cue.endTime) {
-          var offset = item.offsetTop;
-          item.classList.add('active');
-          
-          if(scroll && !hasScrolled) {
-            hasScrolled = true; // if there are overlapping tracks, don't scroll past the first one
-            scrollElement( list, item.offsetTop, SCROLL_STEP, SCROLL_INTERVAL );
-          }
-        }
-        else
-        {
-          item.classList.remove('active');
-        }
-      }
-    };
-
-    /**
-     * Given a list of cues, creates an ordered list and returns it
-     */
-    function buildListFromCues( cues ) {
-        list = document.createElement('ol');
-        list.classList.add(CLASS_PREFIX + 'cuelist');
-
-        for( var i = 0; i<cues.length; i++) {
-          var item  = document.createElement('li'),
-              jump  = document.createElement('button'),
-              quote = document.createElement('q');
-
-          jump.setAttribute('unselectable', 'on');
-          jump.setAttribute('style', '-moz-user-select: none; -webkit-user-select: none; -ms-user-select: none; user-select: none');
-          jump.classList.add(CLASS_PREFIX + 'jump');
-          jump.innerText = 'Go';
-          item.classList.add(CLASS_PREFIX + 'cue');
-          quote.innerHTML = cues[i].text;
-
-          item.appendChild(jump);
-          item.appendChild(quote);
-          item.cue = cues[i];
-          list.appendChild(item);
-          list.setAttribute('style', 'position: relative');
-
-          // the IIFE is crucial, because otherwise the event listeners'
-          // closures reference incorrect items
-          (function(jump, item){ 
-            jump.addEventListener('click', function jumpClicked() {
-              
-              var e     = document.createEvent('CustomEvent');
-              e.initCustomEvent(JUMP_EVENT, true, true, item.cue);
-              jump.dispatchEvent(e);
-
-            });
-
-            // TODO: Should we attach this on the list and not use a custom
-            // event?
-            quote.addEventListener('mouseup', function quoteClicked() {
-              var text = window.getSelection().toString();
-
-              if(!text) {
-                return;
-              }
-              
-              var e     = document.createEvent('CustomEvent');
-              e.initCustomEvent(SELECT_EVENT, true, true, text);
-              jump.dispatchEvent(e);
-              
-            });
-          })(jump, item);
-        }
-        return list;
-    };
-
-    function clearDefinitions( definitionList ) {
-      var defs = definitionList.querySelectorAll('dd');
-      for(var i = 0; i<defs.length; i++) {
-        defs[i].remove();
-      }
-    };
-
-    function addDefinitions( definitionList, definitions ) {
-      definitions.forEach(function addDef(definition) {
-        var dd = document.createElement('dd');
-        dd.innerText = definition;
-        definitionList.appendChild(dd);
-      });
-    }
+    var defList = null,
+        list    = null,
+        events  = [];
 
     return {
       
@@ -243,12 +50,12 @@
         options.destLang = options.destLang || 'en';
 
         var cues       = getCues( this ),
-            list       = buildListFromCues( cues ),
             phrase     = document.createElement('dt'),
-            defList    = document.createElement('dl'),
             autoscroll = true,
             that       = this;
 
+        list    = buildListFromCues( cues );
+        defList = document.createElement('dl');
 
         defList.classList.add(CLASS_PREFIX + 'definition');
         defList.appendChild(phrase);
@@ -308,9 +115,6 @@
         fragment.appendChild(defList);
         fragment.appendChild(list);
 
-        options._defList = defList;
-        options._list = list;
-       
         Popcorn.dom.find(options.target).appendChild(fragment);
       },
 
@@ -320,9 +124,223 @@
 
       _teardown: function( options ) {
         var target = Popcorn.dom.find(options.target);
-        target.remove(options._defList);
-        target.remove(options._list);
+
+        target.remove(defList);
+        target.remove(list);
+        events.forEach(this.removeTrackEvent);
       }
     };
   });
+
+  /**
+   * Helper function for getCues, for use when there are native subtitles
+   */
+  function _getCuesFromVideo( video ) {
+    var track = null;
+
+    for(var i=0; i<video.textTracks.length && !track; i++) {
+      if( video.textTracks.item(i).mode === 'showing' ) {
+        track = video.textTracks.item(i);
+      }
+    }
+    if(!track) {
+      return [];
+    }
+
+    return track.cues;
+  };
+
+  /**
+   * Helper function for getCues, for use when there are Popcorn
+   * subtitles in play
+   */
+  function _getCuesFromPopcorn( popcorn ) {
+    if(!popcorn.getTrackEvents().length) {
+      return [];
+    }
+
+    var re     = new RegExp(/^\d{2}:\d{2}:\d{2}.\d{3} --> \d{2}:\d{2}:\d{2}.\d{3}$/),
+        proto  = popcorn.getTrackEvent(lastID).constructor.prototype,
+        lastID = popcorn.getLastTrackEventId();
+
+    // popcorn uses "start" instead of startTime.
+    // this allows startTime to reference start.
+    Object.defineProperty(proto, "startTime", {
+      get: function getStartTime() {
+        return this.start;
+      }
+    });
+
+    Object.defineProperty(proto, "endTime", {
+      get: function getEndTime() {
+        return this.end;
+      }
+    });
+   
+    // only return subtitle plugin tracks 
+    return popcorn.getTrackEvents().filter(function isSubtitle(ev) {
+      return re.test(ev.id);
+    });
+  };
+ 
+  /**
+   * Returns an array-like object of text cue objects in this format:
+   * { 
+   *   0: {startTime: SECONDS.MILLISECONDS, endTime: SECONDS.MILLISECONDS, text: TEXT_OF_CUE},
+   *   …
+   *   n: {startTime: SECONDS.MILLISECONDS, endTime: SECONDS.MILLISECONDS, text: TEXT_OF_CUE},
+   *   length: n
+   * ] 
+   */
+  function getCues( popcorn ) {
+    
+    if(typeof popcorn.media.addTextTrack === 'function') {
+      return _getCuesFromVideo( popcorn.media );
+    }
+
+    return _getCuesFromPopcorn( popcorn );
+  };
+
+  /**
+   * Scrolls the given element to the given offset
+   * @param element the element to scroll
+   * @param offset the position to scroll to
+   * @param step how much to jump with each movement
+   * @param interval how many milliseconds in-between steps
+   */
+  function scrollElement( element, offset, step, interval) {
+    var interval = window.setInterval(function smoothScroll(){
+      var current = element.scrollTop;
+      if(current + step >= offset) {
+        element.scrollTop = offset;
+        window.clearInterval(interval);
+      }
+      else
+      {
+        element.scrollTop += SCROLL_STEP;
+      }
+      // the element apparently isn't scrolling. abort! abort!
+      if(element.scrollTop === current) {
+        window.clearInterval(interval);
+      }
+    }, interval);
+  };
+
+  /**
+   * Given a certain time, scrolls down to the relevant position in the
+   * given list.
+   *
+   * @param list the element containing cue items
+   * @param time the time to mark cues with
+   * @param scroll whether or not to scroll
+   */
+  function markActiveTime( list, time, scroll ) {
+    var hasScrolled = false,
+        nodes = list.childNodes;
+
+    for(var i=0; i<nodes.length; i++) {
+      var item = list.childNodes[i],
+          cue = item.cue;
+
+      if(time >= cue.startTime && time <= cue.endTime) {
+        item.classList.add('active');
+        
+        if(scroll && !hasScrolled) {
+          hasScrolled = true; // if there are overlapping tracks, don't scroll past the first one
+          // show context
+          var offset = nodes[i-1] ? nodes[i-1].offsetTop : item.offsetTop;
+          scrollElement( list, offset, SCROLL_STEP, SCROLL_INTERVAL );
+        }
+      }
+      else
+      {
+        item.classList.remove('active');
+      }
+    }
+  };
+
+  /**
+   * Given a list of cues, creates an ordered list and returns it
+   */
+  function buildListFromCues( cues ) {
+      list = document.createElement('ol');
+      list.classList.add(CLASS_PREFIX + 'cuelist');
+
+      for( var i = 0; i<cues.length; i++) {
+        var item  = document.createElement('li'),
+            jump  = document.createElement('button'),
+            quote = document.createElement('q');
+
+        jump.setAttribute('unselectable', 'on');
+        jump.setAttribute('style', '-moz-user-select: none; -webkit-user-select: none; -ms-user-select: none; user-select: none');
+        jump.classList.add(CLASS_PREFIX + 'jump');
+        jump.innerText = 'Go';
+        item.classList.add(CLASS_PREFIX + 'cue');
+        quote.innerHTML = cues[i].text;
+
+        item.appendChild(jump);
+        item.appendChild(quote);
+        item.cue = cues[i];
+        list.appendChild(item);
+        list.setAttribute('style', 'position: relative');
+
+        // the IIFE is crucial, because otherwise the event listeners'
+        // closures reference incorrect items
+        (function(jump, item){ 
+          jump.addEventListener('click', function jumpClicked() {
+            
+            var e     = document.createEvent('CustomEvent');
+            e.initCustomEvent(JUMP_EVENT, true, true, item.cue);
+            jump.dispatchEvent(e);
+
+          });
+
+          // TODO: Should we attach this on the list and not use a custom
+          // event?
+          quote.addEventListener('mouseup', function quoteClicked() {
+            var text = window.getSelection().toString();
+
+            if(!text) {
+              return;
+            }
+            
+            var e     = document.createEvent('CustomEvent');
+            e.initCustomEvent(SELECT_EVENT, true, true, text);
+            jump.dispatchEvent(e);
+            
+          });
+        })(jump, item);
+      }
+      return list;
+  };
+
+  function clearDefinitions( definitionList ) {
+    var defs = definitionList.querySelectorAll('dd');
+    for(var i = 0; i<defs.length; i++) {
+      defs[i].remove();
+    }
+  };
+
+  function addDefinitions( definitionList, definitions ) {
+    definitions.forEach(function addDef(definition) {
+      var dd = document.createElement('dd');
+      dd.innerText = definition;
+      definitionList.appendChild(dd);
+    });
+  };
+
+  /**
+   * Applies the callback function to the given cues
+   * @param cues An array-like object of either TextTracks or Popcorn TrackEvents
+   * @param callback A function called when the track is turned on or off:
+   * @return An array of Popcorn events (if created) that should be deleted on teardown
+   * Example:
+   *  addTrackListeners( [track1,track2,...,trackn], function handle(track, active) {
+   *    // track is the track that caused the event
+   *    // active states whether or not the track is being used
+   *  });
+   */
+  function addTrackListeners( cues, callback ) {
+    
+  };
 })(Popcorn);

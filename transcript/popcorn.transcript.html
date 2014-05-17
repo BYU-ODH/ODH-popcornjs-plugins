@@ -13,18 +13,19 @@
 
       setTimeout(function(){
       window.pop = Popcorn( "#video" )
+      .mute()
       .play()
       .transcript({
         api: 'http://example.com/api/v1/', // TODO - put live API here
         srcLang: 'es',
         destLang: 'en',
         target: 'target'
-        });}, 1000);
+      });}, 1000);
     });
   </script>
   <style>
     .popcorn-transcript-cuelist {
-      height: 55px;
+      height: 5em;
       position: relative;
       overflow-y: scroll;
       width: 450px;
