@@ -50,20 +50,28 @@
       _setup: function( options ) {
         options.destLang = options.destLang || 'en';
 
-        var cues       = getCues( this ),
-            phrase     = document.createElement('dt'),
-            autoscroll = true,
-            that       = this;
+        var cues        = getCues( this ),
+            that        = this,
+            phrase      = document.createElement('dt'),
+            autoscroll  = true;
 
-        addTrackListeners(this, cues, function handleCueChange(track, active) {
-          // TODO
-        });
 
         list    = buildListFromCues( cues );
         defList = document.createElement('dl');
 
         defList.classList.add(CLASS_PREFIX + 'definition');
         defList.appendChild(phrase);
+        
+        addTrackListeners(this, cues, function handleCueChange(track, index, active) {
+          activeCount = list.querySelectorAll('.active').length;
+
+          if(active) {
+            var scroll = (autoscroll && activeCount === 0); // don't scroll if we still have a track showing
+            markActiveTrack(list, index, scroll);
+          }else{
+            clearTrack(list, index);
+          }
+        });
 
         function define( text, success, error ) {
           var request = new XMLHttpRequest();
@@ -94,6 +102,7 @@
         };
 
         list.addEventListener(JUMP_EVENT, function handleJump(e) {
+          clearTrack(list, -1);
           that.currentTime(e.detail.startTime);
         });
 
@@ -107,13 +116,6 @@
           }, function error( data ) {
             phrase.innerText = 'ERROR';
           });
-        });
-
-        /**
-         * TODO: for native cues, use TextTrack.oncuechange
-         */
-        this.on('timeupdate', function(){
-          markActiveTime(list, that.currentTime(), autoscroll);
         });
 
         var fragment = document.createDocumentFragment();
@@ -236,33 +238,41 @@
 
   /**
    * Given a certain time, scrolls down to the relevant position in the
-   * given list.
+   * given list and marks all relevant cues with an active class
    *
    * @param list the element containing cue items
-   * @param time the time to mark cues with
+   * @param index the track to mark as active
    * @param scroll whether or not to scroll
    */
-  function markActiveTime( list, time, scroll ) {
+  function markActiveTrack( list, index, scroll ) {
     var hasScrolled = false,
-        nodes = list.childNodes;
-
-    for(var i=0; i<nodes.length; i++) {
-      var item = list.childNodes[i],
-          cue = item.cue;
-
-      if(time >= cue.startTime && time <= cue.endTime) {
-        item.classList.add('active');
+        nodes = list.childNodes,
+        item = nodes[index];
+    
+    item.classList.add('active');
         
-        if(scroll && !hasScrolled) {
-          hasScrolled = true; // if there are overlapping tracks, don't scroll past the first one
-          // show context
-          var offset = nodes[i-1] ? nodes[i-1].offsetTop : item.offsetTop;
-          scrollElement( list, offset, SCROLL_STEP, SCROLL_INTERVAL );
-        }
-      }
-      else
-      {
-        item.classList.remove('active');
+    if(scroll && !hasScrolled) {
+      hasScrolled = true; // if there are overlapping tracks, don't scroll past the first one
+      // show context--i.e., one item before this one
+      var offset = nodes[index-1] ? nodes[index-1].offsetTop : item.offsetTop;
+      scrollElement( list, offset, SCROLL_STEP, SCROLL_INTERVAL );
+    }
+  };
+
+  /**
+   * Specifies that the given track should no longer be marked as 'active'
+   * @param list the element containing cue items
+   * @param index the track to mark as active. If -1, clears all
+   */
+  function clearTrack( list, index ) {
+    if(index !== -1) {
+      list.childNodes[index].classList.remove('active');
+    }
+    else
+    {
+      var active = list.querySelectorAll('.active');
+      for(var i = 0; i<active.length; i++) {
+        active[i].classList.remove('active');
       }
     }
   };
@@ -353,28 +363,28 @@
    */
   function addTrackListeners( pop, tracks, callback ) {
     if(!tracks.length) { return []; }
-    var isNative = cues[0] instanceof TextTrack;
+    var isNative = tracks[0] instanceof TextTrack;
     var response = {popcornEvents: [], nativeEvents: []};
     var pops = response.popcornEvents;
     var nats = response.nativeEvents;
 
     for(var i = 0; i<tracks.length; i++) {
       var track = tracks[i];
-      (function attachEvent(track){
+      (function attachEvent(track, index){
         if(isNative) {
           track.addEventListener('cuechange', function handleCueChange(){
-            callback(track, track.mode === 'showing');
+            callback(track, index, track.mode === 'showing');
           });
           nats.push({"track": track, "e": callback, "type": "cuechange"});
         }
         else
         {
-          pops.push(pop.cue(track.startTime, function(){callback(track, true)}));
-          pops.push(pop.cue(track.endTime, function(){callback(track, false)}));
+          pops.push(pop.cue(track.startTime, function(){callback(track, index, true)}));
+          pops.push(pop.cue(track.endTime, function(){callback(track, index, false)}));
         }
-      }(track));
-      return response;
+      }(track, i));
     }
+    return response;
   };
 
 })(Popcorn);
