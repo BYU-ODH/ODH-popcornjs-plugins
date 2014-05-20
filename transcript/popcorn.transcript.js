@@ -36,12 +36,15 @@
   var CLASS_PREFIX      = 'popcorn-transcript-',
       JUMP_EVENT        = 'CueJumpClicked',
       SELECT_EVENT      = 'TextSelected',
+      CONTROL_EVENT     = 'AutoscrollChanged',
       SCROLL_INTERVAL   = 50, // lower is faster
       SCROLL_STEP       = 5;  // higher is faster, lower is smoother
   
   Popcorn.plugin( "transcript", function() {
     var defList      = null,
         list         = null,
+        controls     = null,
+        autoscroll   = true,
         popEvents    = [],
         nativeEvents = []; 
 
@@ -53,14 +56,17 @@
         var cues        = getCues( this ),
             that        = this,
             phrase      = document.createElement('dt'),
-            autoscroll  = true;
 
-
-        list    = buildListFromCues( cues );
-        defList = document.createElement('dl');
+        list     = buildListFromCues( cues );
+        defList  = document.createElement('dl');
+        controls = buildControls();
 
         defList.classList.add(CLASS_PREFIX + 'definition');
         defList.appendChild(phrase);
+
+        controls.addEventListener( CONTROL_EVENT, function handle(e) {
+          autoscroll = e.detail;
+        });
         
         addTrackListeners(this, cues, function handleCueChange(track, index, active) {
           activeCount = list.querySelectorAll('.active').length;
@@ -102,6 +108,8 @@
         };
 
         list.addEventListener(JUMP_EVENT, function handleJump(e) {
+          autoscroll = false;
+          controls.querySelector('input').checked = false;
           clearTrack(list, -1);
           that.currentTime(e.detail.startTime);
         });
@@ -120,6 +128,7 @@
 
         var fragment = document.createDocumentFragment();
         fragment.appendChild(defList);
+        fragment.appendChild(controls);
         fragment.appendChild(list);
 
         Popcorn.dom.find(options.target).appendChild(fragment);
@@ -132,8 +141,9 @@
       _teardown: function( options ) {
         var target = Popcorn.dom.find(options.target);
 
-        target.remove(defList);
-        target.remove(list);
+        defList.remove();
+        list.remove();
+        controls.remove();
         popEvents.forEach(this.removeTrackEvent);
         nativeEvents.forEach(function removeTrackEvent(data) {
           data.track.removeEventListener(data.type, data.e);
@@ -141,6 +151,20 @@
       }
     };
   });
+
+  function buildControls() {
+    var div = document.createElement('div');
+    div.innerHTML = '<label class=' + CLASS_PREFIX + 'toggle-scroll>' +
+                    '<input type=checkbox checked> Auto-Scroll</label>'; 
+    
+    div.querySelector('input').addEventListener('change', function handle() {
+      var e = document.createEvent('CustomEvent');
+      e.initCustomEvent(CONTROL_EVENT, true, true, this.checked);
+      this.dispatchEvent(e);
+    }); 
+
+    return div.childNodes[0];
+  };
 
   /**
    * Helper function for getCues, for use when there are native subtitles
@@ -281,26 +305,31 @@
    * Given a list of cues, creates an ordered list and returns it
    */
   function buildListFromCues( cues ) {
-      list = document.createElement('ol');
-      list.classList.add(CLASS_PREFIX + 'cuelist');
+      var html = '<ol style="position:relative" class=' + CLASS_PREFIX + 'cuelist>';
 
       for( var i = 0; i<cues.length; i++) {
-        var item  = document.createElement('li'),
-            jump  = document.createElement('button'),
-            quote = document.createElement('q');
+        var unselectable = '-moz-user-select: none; -webkit-user-select: none; -ms-user-select: none; user-select: none';
+        html += '<li class=' + CLASS_PREFIX +'cue>' + 
+             '<button unselectable=on class='+ CLASS_PREFIX +'jump ' +
+                     'style="' + unselectable + '">Go</button>' +
+             '<q>' + cues[i].text + '</q></li>';
 
-        jump.setAttribute('unselectable', 'on');
-        jump.setAttribute('style', '-moz-user-select: none; -webkit-user-select: none; -ms-user-select: none; user-select: none');
-        jump.classList.add(CLASS_PREFIX + 'jump');
-        jump.innerText = 'Go';
-        item.classList.add(CLASS_PREFIX + 'cue');
-        quote.innerHTML = cues[i].text;
+      }
+      html += '</ol>';
 
-        item.appendChild(jump);
-        item.appendChild(quote);
+      var div = document.createElement('div');
+      div.innerHTML = html;
+
+      var list = div.childNodes[0];
+      var items = list.querySelectorAll('li');
+      
+
+      for( var i = 0; i<items.length; i++ ) {
+        var item  = items[i],
+            jump  = item.querySelector('button'),
+            quote = item.querySelector('q');
+
         item.cue = cues[i];
-        list.appendChild(item);
-        list.setAttribute('style', 'position: relative');
 
         // the IIFE is crucial, because otherwise the event listeners'
         // closures reference incorrect items
