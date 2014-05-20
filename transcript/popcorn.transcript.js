@@ -55,7 +55,7 @@
 
         var cues        = getCues( this ),
             that        = this,
-            phrase      = document.createElement('dt'),
+            phrase      = document.createElement('dt');
 
         list     = buildListFromCues( cues );
         defList  = document.createElement('dl');
@@ -68,7 +68,7 @@
           autoscroll = e.detail;
         });
         
-        addTrackListeners(this, cues, function handleCueChange(track, index, active) {
+        var events = addTrackListeners(this, cues, function handleCueChange(track, index, active) {
           activeCount = list.querySelectorAll('.active').length;
 
           if(active) {
@@ -78,6 +78,8 @@
             clearTrack(list, index);
           }
         });
+        nativeEvents = nativeEvents.concat(events.nativeEvents);
+        popEvents    = popEvents.concat(events.popEvents);
 
         function define( text, success, error ) {
           var request = new XMLHttpRequest();
@@ -393,21 +395,21 @@
   function addTrackListeners( pop, tracks, callback ) {
     if(!tracks.length) { return []; }
     var isNative = tracks[0] instanceof window.VTTCue;
-    var response = {popcornEvents: [], nativeEvents: []};
-    var pops = response.popcornEvents;
+    var response = {popEvents: [], nativeEvents: []};
+    var pops = response.popEvents;
     var nats = response.nativeEvents;
 
     for(var i = 0; i<tracks.length; i++) {
       var cue = tracks[i];
       (function attachEvent(cue, index){
+        function handleEnter() { callback(cue, index, true);  };
+        function handleExit()  { callback(cue, index, false); };
+
         if(isNative) {
-          cue.addEventListener('enter', function handleCueChange(){
-            callback(cue, index, true);
-          });
-          cue.addEventListener('exit', function handleCueChange(){
-            callback(cue, index, false);
-          });
-          nats.push({"cue": cue, "e": callback, "type": "cuechange"});
+          cue.addEventListener('enter', handleEnter);
+          cue.addEventListener('exit', handleExit);
+          nats.push({"cue": cue, "e": handleEnter, "type": 'enter'});
+          nats.push({"cue": cue, "e": handleExit, "type": 'exit'});
         }
         else
         {
