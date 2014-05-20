@@ -145,8 +145,8 @@
         list.remove();
         controls.remove();
         popEvents.forEach(this.removeTrackEvent);
-        nativeEvents.forEach(function removeTrackEvent(data) {
-          data.track.removeEventListener(data.type, data.e);
+        nativeEvents.forEach(function removeCueEvents(data) {
+          data.cue.removeEventListener(data.type, data.e);
         });
       }
     };
@@ -392,26 +392,29 @@
    */
   function addTrackListeners( pop, tracks, callback ) {
     if(!tracks.length) { return []; }
-    var isNative = tracks[0] instanceof TextTrack;
+    var isNative = tracks[0] instanceof window.VTTCue;
     var response = {popcornEvents: [], nativeEvents: []};
     var pops = response.popcornEvents;
     var nats = response.nativeEvents;
 
     for(var i = 0; i<tracks.length; i++) {
-      var track = tracks[i];
-      (function attachEvent(track, index){
+      var cue = tracks[i];
+      (function attachEvent(cue, index){
         if(isNative) {
-          track.addEventListener('cuechange', function handleCueChange(){
-            callback(track, index, track.mode === 'showing');
+          cue.addEventListener('enter', function handleCueChange(){
+            callback(cue, index, true);
           });
-          nats.push({"track": track, "e": callback, "type": "cuechange"});
+          cue.addEventListener('exit', function handleCueChange(){
+            callback(cue, index, false);
+          });
+          nats.push({"cue": cue, "e": callback, "type": "cuechange"});
         }
         else
         {
           pops.push(pop.cue(track.startTime, function(){callback(track, index, true)}));
           pops.push(pop.cue(track.endTime, function(){callback(track, index, false)}));
         }
-      }(track, i));
+      }(cue, i));
     }
     return response;
   };
