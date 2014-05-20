@@ -37,6 +37,7 @@
       JUMP_EVENT        = 'CueJumpClicked',
       SELECT_EVENT      = 'TextSelected',
       CONTROL_EVENT     = 'AutoscrollChanged',
+      LOAD_INTERVAL     = 250, // the length of time to wait in-between checking to see if cues have loaded, in ms
       SCROLL_INTERVAL   = 50, // lower is faster
       SCROLL_STEP       = 5;  // higher is faster, lower is smoother
   
@@ -46,94 +47,19 @@
         controls     = null,
         autoscroll   = true,
         popEvents    = [],
-        nativeEvents = []; 
+        loadItvl     = null, // the result of setInterval while we wait for the tracks to load
+        nativeEvents = [];
 
     return {
-      
       _setup: function( options ) {
-        options.destLang = options.destLang || 'en';
-
-        var cues        = getCues( this ),
-            that        = this,
-            phrase      = document.createElement('dt');
-
-        list     = buildListFromCues( cues );
-        defList  = document.createElement('dl');
-        controls = buildControls();
-
-        defList.classList.add(CLASS_PREFIX + 'definition');
-        defList.appendChild(phrase);
-
-        controls.addEventListener( CONTROL_EVENT, function handle(e) {
-          autoscroll = e.detail;
-        });
-        
-        var events = addTrackListeners(this, cues, function handleCueChange(track, index, active) {
-          activeCount = list.querySelectorAll('.active').length;
-
-          if(active) {
-            var scroll = (autoscroll && activeCount === 0); // don't scroll if we still have a track showing
-            markActiveTrack(list, index, scroll);
-          }else{
-            clearTrack(list, index);
+        var that = this;
+        loadItvl = setInterval(function tryToGetCues() {
+          var cues = getCues( that );
+          if(cues.length) {
+            window.clearInterval( loadItvl );
+            initialize.call(that, options, cues);
           }
-        });
-        nativeEvents = nativeEvents.concat(events.nativeEvents);
-        popEvents    = popEvents.concat(events.popEvents);
-
-        function define( text, success, error ) {
-          var request = new XMLHttpRequest();
-          var qstr = 'lookup?srcLang=' + options.srcLang + '&destLang=' +
-                options.destLang + '&word=' + text;
-
-          request.open('GET', options.api + encodeURI(qstr));
-          request.onreadystatechange = function() {
-            if(request.readyState !== 4) {
-              return;
-            }
-            if(request.status !== 200) {
-              if(typeof error === 'function') {
-                error();
-              }
-              return;
-            }
-            if(typeof success === 'function') {
-              var data = JSON.parse(request.responseText);
-              if(!data.success) {
-                error(data);
-                return;
-              }
-              success(data);
-            }
-          };
-          request.send();
-        };
-
-        list.addEventListener(JUMP_EVENT, function handleJump(e) {
-          autoscroll = false;
-          controls.querySelector('input').checked = false;
-          clearTrack(list, -1);
-          that.currentTime(e.detail.startTime);
-        });
-
-        list.addEventListener(SELECT_EVENT, function handleSelect(e) {
-          clearDefinitions( defList );
-          phrase.innerText = 'Loading...';
-
-          define(e.detail, function success( data ) {
-            phrase.innerText = e.detail;
-            addDefinitions( defList, data.entries );
-          }, function error( data ) {
-            phrase.innerText = 'ERROR';
-          });
-        });
-
-        var fragment = document.createDocumentFragment();
-        fragment.appendChild(defList);
-        fragment.appendChild(controls);
-        fragment.appendChild(list);
-
-        Popcorn.dom.find(options.target).appendChild(fragment);
+        }, LOAD_INTERVAL);
       },
 
       start: function( options ) {},
@@ -141,7 +67,7 @@
       end: function( options ) {},
 
       _teardown: function( options ) {
-        var target = Popcorn.dom.find(options.target);
+        window.clearInterval(loadItvl);
 
         defList.remove();
         list.remove();
@@ -152,7 +78,98 @@
         });
       }
     };
+    
+    function initialize( options, cues ) {
+      options.destLang = options.destLang || 'en';
+
+      var cues        = getCues( this ),
+          that        = this,
+          phrase      = document.createElement('dt');
+
+      list     = buildListFromCues( cues );
+      defList  = document.createElement('dl');
+      controls = buildControls();
+
+      defList.classList.add(CLASS_PREFIX + 'definition');
+      defList.appendChild(phrase);
+
+      controls.addEventListener( CONTROL_EVENT, function handle(e) {
+        autoscroll = e.detail;
+      });
+      
+      var events = addTrackListeners(this, cues, function handleCueChange(track, index, active) {
+        activeCount = list.querySelectorAll('.active').length;
+
+        if(active) {
+          var scroll = (autoscroll && activeCount === 0); // don't scroll if we still have a track showing
+          markActiveTrack(list, index, scroll);
+        }else{
+          clearTrack(list, index);
+        }
+      });
+      nativeEvents = nativeEvents.concat(events.nativeEvents);
+      popEvents    = popEvents.concat(events.popEvents);
+
+      list.addEventListener(JUMP_EVENT, function handleJump(e) {
+        disableScroll();
+        clearTrack(list, -1);
+        that.currentTime(e.detail.startTime);
+      });
+
+      list.addEventListener(SELECT_EVENT, function handleSelect(e) {
+        clearDefinitions( defList );
+        phrase.innerText = 'Loading...';
+        disableScroll();
+
+        define(options, e.detail, function success( data ) {
+          phrase.innerText = e.detail;
+          addDefinitions( defList, data.entries );
+        }, function error( data ) {
+          phrase.innerText = 'ERROR';
+        });
+      });
+
+      var fragment = document.createDocumentFragment();
+      fragment.appendChild(defList);
+      fragment.appendChild(controls);
+      fragment.appendChild(list);
+
+      Popcorn.dom.find(options.target).appendChild(fragment);
+    };
+
+    function disableScroll() {
+      autoscroll = false;
+      controls.querySelector('input').checked = false;
+    };
   });
+
+  function define( options, text, success, error ) {
+    var request = new XMLHttpRequest();
+    var qstr = 'lookup?srcLang=' + options.srcLang + '&destLang=' +
+          options.destLang + '&word=' + text;
+
+    request.open('GET', options.api + encodeURI(qstr));
+    request.onreadystatechange = function() {
+      if(request.readyState !== 4) {
+        return;
+      }
+      if(request.status !== 200) {
+        if(typeof error === 'function') {
+          error();
+        }
+        return;
+      }
+      if(typeof success === 'function') {
+        var data = JSON.parse(request.responseText);
+        if(!data.success) {
+          error(data);
+          return;
+        }
+        success(data);
+      }
+    };
+    request.send();
+  };
 
   function buildControls() {
     var div = document.createElement('div');
