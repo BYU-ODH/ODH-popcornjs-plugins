@@ -112,7 +112,7 @@
       });
 
       var events = addTrackListeners(this, cues, function handleCueChange(track, index, active) {
-        activeCount = list.querySelectorAll('.active').length;
+        var activeCount = list.querySelectorAll('.active').length;
 
         if(active) {
           var scroll = (autoscroll && activeCount === 0); // don't scroll if we still have a track showing
