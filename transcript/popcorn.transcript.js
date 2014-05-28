@@ -33,6 +33,7 @@
  *  });
  */
 (function (Popcorn) {
+  "use strict";
   var CLASS_PREFIX      = 'popcorn-transcript-',
       JUMP_EVENT        = 'CueJumpClicked',
       SELECT_EVENT      = 'TextSelected',
@@ -42,7 +43,7 @@
       SCROLL_STEP       = 5;  // higher is faster, lower is smoother
   
   Popcorn.plugin( "transcript", function() {
-    var defList      = null,
+    var defs         = null, // definitions
         list         = null,
         controls     = null,
         autoscroll   = true,
@@ -69,7 +70,7 @@
       _teardown: function( options ) {
         window.clearInterval(loadItvl);
 
-        defList.remove();
+        defs.remove();
         list.remove();
         controls.remove();
         popEvents.forEach(this.removeTrackEvent);
@@ -87,16 +88,28 @@
           phrase      = document.createElement('dt');
 
       list     = buildListFromCues( cues );
-      defList  = document.createElement('dl');
+      defs     = document.createElement('div');
       controls = buildControls();
 
-      defList.classList.add(CLASS_PREFIX + 'definition');
+      var clearBtn = document.createElement('button');
+      var defList  = document.createElement('dl');
+
+      clearBtn.innerHTML = 'Clear';
+
+      defs.appendChild(clearBtn);
+      defs.appendChild(defList);
+      defs.classList.add(CLASS_PREFIX + 'definition');
       defList.appendChild(phrase);
 
       controls.addEventListener( CONTROL_EVENT, function handle(e) {
         autoscroll = e.detail;
       });
-      
+
+      clearBtn.addEventListener( 'click', function empty() {
+        clearDefinitions(defList);
+        defs.classList.remove('active');
+      });
+
       var events = addTrackListeners(this, cues, function handleCueChange(track, index, active) {
         activeCount = list.querySelectorAll('.active').length;
 
@@ -117,6 +130,7 @@
       });
 
       list.addEventListener(SELECT_EVENT, function handleSelect(e) {
+        defs.classList.add('active');
         clearDefinitions( defList );
         phrase.innerText = 'Loading...';
         disableScroll();
@@ -125,12 +139,12 @@
           phrase.innerText = e.detail;
           addDefinitions( defList, data.entries );
         }, function error( data ) {
-          phrase.innerText = 'ERROR';
+          phrase.innerText = 'No entry found for "' + e.detail + '"';
         });
       });
 
       var fragment = document.createDocumentFragment();
-      fragment.appendChild(defList);
+      fragment.appendChild(defs);
       fragment.appendChild(controls);
       fragment.appendChild(list);
 
@@ -381,6 +395,7 @@
   };
 
   function clearDefinitions( definitionList ) {
+    definitionList.querySelector('dt').innerHTML = '';
     var defs = definitionList.querySelectorAll('dd');
     for(var i = 0; i<defs.length; i++) {
       defs[i].remove();
