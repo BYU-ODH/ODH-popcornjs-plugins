@@ -95,6 +95,7 @@
       var defList  = document.createElement('dl');
 
       clearBtn.innerHTML = 'Clear';
+      clearBtn.classList.add(CLASS_PREFIX + 'clear-definitions');
 
       defs.appendChild(clearBtn);
       defs.appendChild(defList);
