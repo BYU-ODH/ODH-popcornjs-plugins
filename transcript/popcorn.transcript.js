@@ -41,7 +41,7 @@
       LOAD_INTERVAL     = 250, // the length of time to wait in-between checking to see if cues have loaded, in ms
       SCROLL_INTERVAL   = 50, // lower is faster
       SCROLL_STEP       = 5;  // higher is faster, lower is smoother
-  
+
   Popcorn.plugin( "transcript", function() {
     var defs         = null, // definitions
         list         = null,
@@ -344,8 +344,10 @@
       for( var i = 0; i<cues.length; i++) {
         var unselectable = '-moz-user-select: none; -webkit-user-select: none; -ms-user-select: none; user-select: none';
         html += '<li class=' + CLASS_PREFIX +'cue>' + 
-             '<button unselectable=on class='+ CLASS_PREFIX +'jump ' +
-                     'style="' + unselectable + '">Go</button>' +
+             '<a unselectable=on class='+ CLASS_PREFIX +'jump ' +
+                     'style="' + unselectable + '">' +
+                     getTimestamp(cues[i].startTime) +
+             '</a>' +
              '<q>' + cues[i].text + '</q></li>';
 
       }
@@ -360,7 +362,7 @@
 
       for( var i = 0; i<items.length; i++ ) {
         var item  = items[i],
-            jump  = item.querySelector('button'),
+            jump  = item.querySelector('.' + CLASS_PREFIX + 'jump'),
             quote = item.querySelector('q');
 
         item.cue = cues[i];
@@ -453,5 +455,17 @@
     }
     return response;
   };
+ 
+  /**
+   * Courtesy of dkreuter at http://stackoverflow.com/a/1322830/390977
+   */ 
+  function getTimestamp(timeInSeconds) {
+    var hours = Math.floor( timeInSeconds / 3600 ) % 24;
+    var minutes = Math.floor( timeInSeconds / 60 ) % 60;
+    var seconds = Math.floor(timeInSeconds % 60);
+
+    return (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds  < 10 ? "0" + seconds : seconds);
+  };
+  
 
 })(Popcorn);
