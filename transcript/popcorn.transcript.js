@@ -70,9 +70,9 @@
       _teardown: function( options ) {
         window.clearInterval(loadItvl);
 
-        defs.remove();
-        list.remove();
-        controls.remove();
+        if(defs) {defs.remove();}
+        if(list) {list.remove();}
+        if(controls) {controls.remove();}
         popEvents.forEach(this.removeTrackEvent);
         nativeEvents.forEach(function removeCueEvents(data) {
           data.cue.removeEventListener(data.type, data.e);
