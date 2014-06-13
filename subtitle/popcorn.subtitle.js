@@ -7,26 +7,46 @@
  *
  * 2. To add a toString() method to the options object, for improved clarity
  *    when editing subtitles in Butter
+ *
+ * 3. To work in full screen
+ *
+ * 4. To position subtitles correctly when using Video.js
+ *
+ * 5. To utilize requestAnimationFrame. We don't want to position subtitles
+ *    when we don't need to.
  */
 
 (function ( Popcorn ) {
+
+  window.requestAnimationFrame = window.requestAnimationFrame       ||
+                                 window.mozRequestAnimationFrame    ||
+                                 window.webkitRequestAnimationFrame ||
+                                 window.msRequestAnimationFrame;
 
   var i = 0,
       createDefaultContainer = function( context, id ) {
 
         var ctxContainer = context.container = document.createElement( "div" ),
             style = ctxContainer.style,
-            media = context.media;
+            media = context.media,
+            vjs   = media.parentElement.querySelector('.vjs-control-bar');
 
         var updatePosition = function() {
           var position = context.position();
           // the video element must have height and width defined
           style.fontSize = "18px";
           style.width = media.offsetWidth + "px";
-          style.top = position.top  + media.offsetHeight - ctxContainer.offsetHeight - 40 + "px";
+
+          if(vjs) { // place above videojs control bar
+            style.top = vjs.offsetTop - ctxContainer.offsetHeight - 40 + "px";
+          }
+          else
+          {
+            style.top = position.top  + media.offsetHeight - ctxContainer.offsetHeight - 40 + "px";
+          }
           style.left = position.left + "px";
 
-          setTimeout( updatePosition, 10 );
+          window.requestAnimationFrame(updatePosition);
         };
 
         ctxContainer.id = id || Popcorn.guid();
@@ -37,7 +57,7 @@
         style.fontWeight = "bold";
         style.textAlign = "center";
 
-        updatePosition();
+        window.requestAnimationFrame(updatePosition);
 
         context.media.parentNode.appendChild( ctxContainer );
 
