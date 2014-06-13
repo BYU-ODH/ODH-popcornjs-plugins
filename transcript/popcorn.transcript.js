@@ -228,21 +228,25 @@
     }
 
     var re     = new RegExp(/^\d{2}:\d{2}:\d{2}.\d{3} --> \d{2}:\d{2}:\d{2}.\d{3}$/),
-        proto  = popcorn.getTrackEvent(lastID).constructor.prototype,
-        lastID = popcorn.getLastTrackEventId();
+        lastID = popcorn.getLastTrackEventId(),
+        proto  = popcorn.getTrackEvent(lastID).constructor.prototype;
 
     // popcorn uses "start" instead of startTime.
     // this allows startTime to reference start.
     Object.defineProperty(proto, "startTime", {
       get: function getStartTime() {
         return this.start;
-      }
+      },
+      configurable: true,
+      enumerable: true
     });
 
     Object.defineProperty(proto, "endTime", {
       get: function getEndTime() {
         return this.end;
-      }
+      },
+      configurable: true,
+      enumerable: true
     });
    
     // only return subtitle plugin tracks 
@@ -429,7 +433,7 @@
    */
   function addTrackListeners( pop, tracks, callback ) {
     if(!tracks.length) { return []; }
-    var isNative = tracks[0] instanceof window.VTTCue;
+    var isNative = (window.VTTCue !== undefined && tracks[0] instanceof window.VTTCue);
     var response = {popEvents: [], nativeEvents: []};
     var pops = response.popEvents;
     var nats = response.nativeEvents;
@@ -448,8 +452,8 @@
         }
         else
         {
-          pops.push(pop.cue(track.startTime, function(){callback(track, index, true)}));
-          pops.push(pop.cue(track.endTime, function(){callback(track, index, false)}));
+          pops.push(pop.cue(cue.startTime, function(){callback(cue, index, true)}));
+          pops.push(pop.cue(cue.endTime, function(){callback(cue, index, false)}));
         }
       }(cue, i));
     }
