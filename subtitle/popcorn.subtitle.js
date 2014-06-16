@@ -14,6 +14,8 @@
  *
  * 5. To utilize requestAnimationFrame. We don't want to position subtitles
  *    when we don't need to.
+ *
+ * 6. To add a class to the subtitle container, for CSS purposes
  */
 
 (function ( Popcorn ) {
@@ -29,8 +31,10 @@
         var ctxContainer = context.container = document.createElement( "div" ),
             style    = ctxContainer.style,
             media    = context.media,
-            parentEl = media.parentElement || Popcorn.dom.find(media.id),
+            parentEl = media.parentElement,
             vjs      = parentEl.querySelector('.vjs-control-bar');
+
+        ctxContainer.classList.add('popcorn-subtitle-container');
 
         var updatePosition = function() {
           var position = context.position();
