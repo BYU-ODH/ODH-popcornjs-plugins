@@ -69,11 +69,17 @@
 
       _teardown: function( options ) {
         window.clearInterval(loadItvl);
+        var that = this;
 
         if(defs) {defs.remove();}
         if(list) {list.remove();}
         if(controls) {controls.remove();}
-        popEvents.forEach(this.removeTrackEvent);
+        // this looks like an unnecessary function, but otherwise
+        // Popcorn (sha-1 956693f8) has 'this' bound to the window rather than
+        // the Popcorn instance, and cannot call required methods
+        popEvents.forEach(function(id) { 
+          that.removeTrackEvent(id);
+        });
         nativeEvents.forEach(function removeCueEvents(data) {
           data.cue.removeEventListener(data.type, data.e);
         });
@@ -452,8 +458,11 @@
         }
         else
         {
-          pops.push(pop.cue(cue.startTime, function(){callback(cue, index, true)}));
-          pops.push(pop.cue(cue.endTime, function(){callback(cue, index, false)}));
+          pop.cue(cue.startTime, function(){callback(cue, index, true)});
+          pops.push(pop.getLastTrackEventId());
+
+          pop.cue(cue.endTime, function(){callback(cue, index, false)})
+          pops.push(pop.getLastTrackEventId());
         }
       }(cue, i));
     }
