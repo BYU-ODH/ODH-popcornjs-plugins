@@ -27,9 +27,10 @@
       createDefaultContainer = function( context, id ) {
 
         var ctxContainer = context.container = document.createElement( "div" ),
-            style = ctxContainer.style,
-            media = context.media,
-            vjs   = media.parentElement.querySelector('.vjs-control-bar');
+            style    = ctxContainer.style,
+            media    = context.media,
+            parentEl = media.parentElement || Popcorn.dom.find(media.id),
+            vjs      = parentEl.querySelector('.vjs-control-bar');
 
         var updatePosition = function() {
           var position = context.position();
