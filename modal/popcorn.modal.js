@@ -56,7 +56,7 @@
 
                 options._mask = document.createElement('div');
                 options._mask.className = 'popcorn-modal-mask';
-                options._mask.style.options._mask.style.zIndex = 1000;
+                options._mask.style.zIndex = 1000;
                 options._mask.style.width = '100%';
                 options._mask.style.height = '100%';
                 options._mask.style.opacity = 0.5;
