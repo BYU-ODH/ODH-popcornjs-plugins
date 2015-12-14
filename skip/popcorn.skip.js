@@ -2,13 +2,13 @@
  * This plugin will skip past a certain portion of a video.
  * Helpful if you want to ignore a specific timeframe or implement a (patently) weak
  * censoring system.
- * 
+ *
  * - start is the time you wish to start skipping
  * - end is the time you wish to resume playback
  * @param {Object} options
- * 
+ *
  * Example (jumps from 30-50 seconds):
- * 
+ *
  * var p = Popcorn( "#video" )
  *     .skip({
  *         start: 30,
@@ -18,7 +18,7 @@
  */
 (function (Popcorn) {
    Popcorn.plugin( "skip", (function(){
-       
+
        return {
             // Define a manifest for the butter authoring tool to use
             manifest: {
@@ -48,7 +48,7 @@
                      * When a Popcorn instance has a disabled plugin, its start
                      * methods aren't called. Since we're using a timeupdate we need
                      * to check to make sure skipping hasn't been explicitly disabled.
-                     * 
+                     *
                      * I'm not sure if all Popcorn versions contain pop.data.disabled,
                      * which is why I've created the boolean hasDisabledList
                      */
@@ -61,17 +61,31 @@
                         return;
                     }
                     pop.currentTime(options.end);
- 
+
+                    /**
+                    * Prevent the video from freezing
+                    *
+                    * Sometimes pop.currentTime() sets the time to be slightly less than
+                    * the parameter that is passed to it.  This loop keeps incrementing
+                    * the current time by increasing amounts until the current time is
+                    * greater than the skip's end time.
+                    */
+                    var time_increment = .00001;
+                    while(pop.currentTime() < options.end) {
+                        pop.currentTime(pop.currentTime() + time_increment);
+                        time_increment = time_increment * 10;
+                    }
+
                     if( isYouTube ) {
                         stutterTimeout = setTimeout(function(){
                             pop.pause();
                             setTimeout(function(){
                                 pop.play();
-                            }); 
+                            });
                         }, 500)
                     }
                 };
-                
+
                 pop.on( "timeupdate", options._skip );
             },
 
